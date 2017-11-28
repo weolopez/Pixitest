@@ -1,18 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+  gridRef: AngularFireList<any>;
+  grid: Observable<any[]>;
+  constructor(db: AngularFireDatabase) {
+    this.gridRef = db.list('grid/0');
+    // Use snapshotChanges().map() to store the key
+    this.grid = this.gridRef.snapshotChanges().map(changes => {
+      return changes.map(c => ({ key: c.payload.key, ...c.payload.val() }));
+    });
   }
 
+  ngOnInit() {}
+
+  init(grid) {
+    // this.gridRef.push(this.grid);
+    this.gridRef.set('0', grid);
+  }
+  addItem(newName: string) {
+    this.gridRef.push({ text: newName });
+  }
+  updateItem(key: string, newText: string) {
+    this.gridRef.update(key, { text: newText });
+  }
+  deleteItem(key: string) {
+    this.gridRef.remove(key);
+  }
+  deleteEverything() {
+    this.gridRef.remove();
+  }
 }
 
 var resources = PIXI.loader.resources,
@@ -41,9 +66,9 @@ explorer.x = 68;
 //Center the explorer vertically
 explorer.y = stage.height / 2 - explorer.height / 2;
 stage.addChild(explorer);
-//3. Create an optional alias called `id` for all the texture atlas 
+//3. Create an optional alias called `id` for all the texture atlas
 //frame id textures.
-id = PIXI.loader.resources["../assets/images/treasureHunter.json"].textures; 
+id = PIXI.loader.resources["../assets/images/treasureHunter.json"].textures;
 
 //Make the treasure box using the alias
 treasure = new Sprite(id["treasure.png"]);
@@ -53,7 +78,7 @@ treasure.x = stage.width - treasure.width - 48;
 treasure.y = stage.height / 2 - treasure.height / 2;
 stage.addChild(treasure);
 //Make the exit door
-door = new Sprite(id["door.png"]); 
+door = new Sprite(id["door.png"]);
 door.position.set(32, 0);
 stage.addChild(door);
 //Make the blobs
@@ -101,6 +126,7 @@ blobs.forEach(function(blob) {
     }
 
 })
+
 }
 
 function randomInt(min, max) {
