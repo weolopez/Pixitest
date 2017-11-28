@@ -61,12 +61,7 @@ function setup() {
   for (var i = 0; i < numberOfBlobs; i++) {
     //Make a blob
     blobs[i] = new Sprite(id["blob.png"]);
-    //Space each blob horizontally according to the `spacing` value.
-    //`xOffset` determines the point from the left of the screen
-    //at which the first blob should be added.
     var x = spacing * i + xOffset;
-    //Give the blob a random y position
-    //(`randomInt` is a custom function - see below)
     var y = randomInt(0, stage.height - blobs[i].height);
     //Set the blob's position
     blobs[i].x = x;
