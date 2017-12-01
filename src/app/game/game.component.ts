@@ -1,14 +1,18 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-
-
+  gridRef: AngularFireList<any>;
+  grid: Observable<any[]>;
+  
   loader = PIXI.loader;
   TextureCache = PIXI.utils.TextureCache;
   Texture = PIXI.Texture;
@@ -23,7 +27,13 @@ export class GameComponent implements OnInit {
   state = "play"; 
   blobs = [];
 
-  constructor(public ngZone: NgZone) { }
+  constructor(public ngZone: NgZone, db: AngularFireDatabase) {
+    this.gridRef = db.list('grid/0');
+    // Use snapshotChanges().map() to store the key
+    this.grid = this.gridRef.snapshotChanges().map(changes => {
+      return changes.map(c => ({ key: c.payload.key, ...c.payload.val() }));
+    });
+  }
 
   ngOnInit() {
     this.setupPixie();
@@ -92,6 +102,23 @@ export class GameComponent implements OnInit {
     this.ngZone.runOutsideAngular(() => this.gameLoop());
     }
 
+  init(grid) {
+    // this.gridRef.push(this.grid);
+    this.gridRef.set('0', grid);
+  }
+  addItem(newName: string) {
+    this.gridRef.push({ text: newName });
+  }
+  updateItem(key: string, newText: string) {
+    this.gridRef.update(key, { text: newText });
+  }
+  deleteItem(key: string) {
+    this.gridRef.remove(key);
+  }
+  deleteEverything() {
+    this.gridRef.remove();
+  }
+
 
 gameLoop(){
 //Loop this function 60 times per second
@@ -114,6 +141,7 @@ play() {
     }
 
 })
+
 }
 
 randomInt(min, max) {
