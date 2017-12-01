@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
 @Component({
@@ -8,93 +8,106 @@ import * as PIXI from 'pixi.js';
 })
 export class GameComponent implements OnInit {
 
-  constructor() { }
+
+  loader = PIXI.loader;
+  TextureCache = PIXI.utils.TextureCache;
+  Texture = PIXI.Texture;
+  Sprite = PIXI.Sprite;
+  stage: PIXI.Container;
+  renderer: any;
+  
+  dungeon: PIXI.Sprite;
+  explorer: PIXI.Sprite;
+  treasure: PIXI.Sprite;
+  door: PIXI.Sprite;
+  state = "play"; 
+  blobs = [];
+
+  constructor(public ngZone: NgZone) { }
 
   ngOnInit() {
+    this.setupPixie();
+
+
   }
 
-}
+  setupPixie(){
+    this.stage = new PIXI.Container(), this.renderer = PIXI.autoDetectRenderer(512, 512);
+    document.body.appendChild(this.renderer.view);
+    this.loader.add("../assets/images/treasureHunter.json").load(this.setupResources);
 
-var resources = PIXI.loader.resources,
-TextureCache = PIXI.utils.TextureCache,
-Texture = PIXI.Texture,
-Sprite = PIXI.Sprite;
+  }
 
-var stage = new PIXI.Container(), renderer = PIXI.autoDetectRenderer(512, 512);
-document.body.appendChild(renderer.view);
+  setupResources() {
 
-PIXI.loader.add("../assets/images/treasureHunter.json").load(setup);
-var numberOfBlobs = 2
-var dungeon, explorer, treasure, door, id, state, blobs = [];
+    var numberOfBlobs = 2
 
-function setup() {
-//There are 3 ways to make sprites from textures atlas frames
-//1. Access the `TextureCache` directly
-var dungeonTexture = TextureCache["dungeon.png"];
-dungeon = new Sprite(dungeonTexture);
-stage.addChild(dungeon);
-//2. Access the texture using throuhg the loader's `resources`:
-explorer = new Sprite(
-  resources["../assets/images/treasureHunter.json"].textures["explorer.png"]
-);
-explorer.x = 68;
-//Center the explorer vertically
-explorer.y = stage.height / 2 - explorer.height / 2;
-stage.addChild(explorer);
-//3. Create an optional alias called `id` for all the texture atlas 
-//frame id textures.
-id = PIXI.loader.resources["../assets/images/treasureHunter.json"].textures; 
-
-//Make the treasure box using the alias
-treasure = new Sprite(id["treasure.png"]);
-stage.addChild(treasure);
-//Position the treasure next to the right edge of the canvas
-treasure.x = stage.width - treasure.width - 48;
-treasure.y = stage.height / 2 - treasure.height / 2;
-stage.addChild(treasure);
-//Make the exit door
-door = new Sprite(id["door.png"]); 
-door.position.set(32, 0);
-stage.addChild(door);
-//Make the blobs
-var spacing = 48,
-    xOffset = 150,
-    speed = 3,
-    direction = 1;
-//Make as many blobs as there are `numberOfBlobs`
-for (var i = 0; i < numberOfBlobs; i++) {
-  //Make a blob
-  blobs[i] = new Sprite(id["blob.png"]);
-  var x = spacing * i + xOffset;
-  var y = randomInt(0, stage.height - blobs[i].height);
-  //Set the blob's position
-  blobs[i].x = x;
-  blobs[i].y = y;
-  blobs[i].vy = speed * direction;
-  direction *= -1;
-  //Add the blob sprite to the stage
-  stage.addChild(blobs[i]);
-}
-state = play;
-gameLoop()
-}
+    //There are 3 ways to make sprites from textures atlas frames
+    //1. Access the `TextureCache` directly
+    var dungeonTexture = this.TextureCache["dungeon.png"];
+    this.dungeon = new this.Sprite(dungeonTexture);
+    this.stage.addChild(this.dungeon);
+    //2. Access the texture using throuhg the loader's `resources`:
+    this.explorer = new this.Sprite(
+      this.loader.resources["../assets/images/treasureHunter.json"].textures["explorer.png"]
+    );
+    this.explorer.x = 68;
+    //Center the explorer vertically
+    this.explorer.y = this.stage.height / 2 - this.explorer.height / 2;
+    this.stage.addChild(this.explorer);
+    //3. Create an optional alias called `id` for all the texture atlas 
+    //frame id textures.
+    var id = PIXI.loader.resources["../assets/images/treasureHunter.json"].textures; 
+    
+    //Make the treasure box using the alias
+    this.treasure = new this.Sprite(id["treasure.png"]);
+    this.stage.addChild(this.treasure);
+    //Position the treasure next to the right edge of the canvas
+    this.treasure.x = this.stage.width - this.treasure.width - 48;
+    this.treasure.y = this.stage.height / 2 - this.treasure.height / 2;
+    this.stage.addChild(this.treasure);
+    //Make the exit door
+    this.door = new this.Sprite(id["door.png"]); 
+    this.door.position.set(32, 0);
+    this.stage.addChild(this.door);
+    //Make the blobs
+    var spacing = 48,
+        xOffset = 150,
+        speed = 3,
+        direction = 1;
+    //Make as many blobs as there are `numberOfBlobs`
+    for (var i = 0; i < numberOfBlobs; i++) {
+      //Make a blob
+      this.blobs[i] = new this.Sprite(id["blob.png"]);
+      var x = spacing * i + xOffset;
+      var y = this.randomInt(0, this.stage.height - this.blobs[i].height);
+      //Set the blob's position
+      this.blobs[i].x = x;
+      this.blobs[i].y = y;
+      this.blobs[i].vy = speed * direction;
+      direction *= -1;
+      //Add the blob sprite to the stage
+      this.stage.addChild(this.blobs[i]);
+    }
+    this.ngZone.runOutsideAngular(() => this.gameLoop());
+    }
 
 
-function gameLoop(){
+gameLoop(){
 //Loop this function 60 times per second
-requestAnimationFrame(gameLoop);
-state();
+requestAnimationFrame(this.gameLoop);
+this.play();
 //Render the stage
-renderer.render(stage);
+this.renderer.render(this.stage);
 }
 
-function play() {
+play() {
 
-blobs.forEach(function(blob) {
+ this.blobs.forEach(blob => {
     //Move the blob
     blob.y += blob.vy;
     //Check the blob's screen boundaries
-    var blobHitsWall = contain(blob, {x: 28, y: 10, width: 488, height: 480});
+    var blobHitsWall = this.contain(blob, {x: 28, y: 10, width: 488, height: 480});
     //If the blob hits the top or bottom of the stage, reverse
     if (blobHitsWall === "top" || blobHitsWall === "bottom") {
       blob.vy *= -1;
@@ -103,13 +116,13 @@ blobs.forEach(function(blob) {
 })
 }
 
-function randomInt(min, max) {
+randomInt(min, max) {
 return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function contain(sprite, container) {
+contain(sprite, container) {
 
-  var collision = undefined;
+  var collision = "none";
 
   //Left
   if (sprite.x < container.x) {
@@ -137,4 +150,5 @@ function contain(sprite, container) {
 
   //Return the `collision` value
   return collision;
+}
 }
