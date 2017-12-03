@@ -12,7 +12,7 @@ import { environment } from './../environments/environment';
 @NgModule({
   declarations: [
     AppComponent,
-    GameComponent
+    GameComponent,
   ],
   imports: [
     BrowserModule,

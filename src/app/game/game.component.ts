@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, Input } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
@@ -9,23 +9,26 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnInit {
+export class GameComponent {
+  static stage: PIXI.Container;
+  static renderer: any;
+  static blobs: Array<PIXI.Sprite> = [];
+  static loader: PIXI.loaders.Loader;
+  static treasure: PIXI.Sprite;
+  static resources: Array<any>;
+ // @Input('sprites')
+  static sprites = {};
+  static TREASUREID = 'treasure.png';
+
   gridRef: AngularFireList<any>;
   grid: Observable<any[]>;
-  
-  loader = PIXI.loader;
-  TextureCache = PIXI.utils.TextureCache;
+
   Texture = PIXI.Texture;
   Sprite = PIXI.Sprite;
-  stage: PIXI.Container;
-  renderer: any;
-  
+
   dungeon: PIXI.Sprite;
   explorer: PIXI.Sprite;
-  treasure: PIXI.Sprite;
   door: PIXI.Sprite;
-  state = "play"; 
-  blobs = [];
 
   constructor(public ngZone: NgZone, db: AngularFireDatabase) {
     this.gridRef = db.list('grid/0');
@@ -33,82 +36,205 @@ export class GameComponent implements OnInit {
     this.grid = this.gridRef.snapshotChanges().map(changes => {
       return changes.map(c => ({ key: c.payload.key, ...c.payload.val() }));
     });
+    GameComponent.loader = new PIXI.loaders.Loader();
+    GameComponent.stage = new PIXI.Container();
+    GameComponent.renderer = PIXI.autoDetectRenderer(512, 512);
+    //const loader = PIXI.loader.add('../assets/images/treasureHunter.json');
+
+    //setup); .load( this.loader
+    GameComponent.loader
+      .add('gameResouces', '../assets/images/treasureHunter.json')
+      .load((localLoader, resources) => {
+        //this.getStage();
+        GameComponent.add('dungeon.png');
+        GameComponent.add('door.png', 32, 0);
+        //   GameComponent.stage.addChild(
+        //     this.getExplorer(localLoader, GameComponent.stage.height)
+        //   );
+      });
+
+    GameComponent.loader.onComplete.add(() => {
+      // this.ngZone.runOutsideAngular(() => this.gameLoop());
+      document.body.appendChild(GameComponent.renderer.view);
+      //GameComponent.renderer.render(GameComponent.stage);
+      GameComponent.gameLoop();
+    });
   }
 
-  ngOnInit() {
-    this.setupPixie();
+  static contain = function(sprite, container) {
+    let collision = 'none';
 
+    // Left
+    if (sprite.x < container.x) {
+      sprite.x = container.x;
+      collision = 'left';
+    }
 
-  }
+    // Top
+    if (sprite.y < container.y) {
+      sprite.y = container.y;
+      collision = 'top';
+    }
 
-  setupPixie(){
-    this.stage = new PIXI.Container(), this.renderer = PIXI.autoDetectRenderer(512, 512);
-    document.body.appendChild(this.renderer.view);
-    this.loader.add("../assets/images/treasureHunter.json").load(this.setupResources);
+    // Right
+    if (sprite.x + sprite.width > container.width) {
+      sprite.x = container.width - sprite.width;
+      collision = 'right';
+    }
 
-  }
+    // Bottom
+    if (sprite.y + sprite.height > container.height) {
+      sprite.y = container.height - sprite.height;
+      collision = 'bottom';
+    }
 
-  setupResources() {
+    // Return the `collision` value
+    return collision;
+  };
 
-    var numberOfBlobs = 2
+  static play = function() {
+    GameComponent.blobs.forEach(blob => {
+      // Move the blob
+      //ERROR should vy be a separate global variable
+      // or a movable character type
+      blob.y += blob['vy'];
 
-    //There are 3 ways to make sprites from textures atlas frames
-    //1. Access the `TextureCache` directly
-    var dungeonTexture = this.TextureCache["dungeon.png"];
-    this.dungeon = new this.Sprite(dungeonTexture);
-    this.stage.addChild(this.dungeon);
-    //2. Access the texture using throuhg the loader's `resources`:
-    this.explorer = new this.Sprite(
-      this.loader.resources["../assets/images/treasureHunter.json"].textures["explorer.png"]
+      // Check the blob's screen boundaries
+      const blobHitsWall = GameComponent.contain(blob, {
+        x: 28,
+        y: 10,
+        width: 488,
+        height: 480
+      });
+
+      // If the blob hits the top or bottom of the stage, reverse
+      if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
+        blob['vy'] *= -1;
+      }
+    });
+  };
+
+  static gameLoop = function() {
+    requestAnimationFrame(GameComponent.gameLoop);
+    GameComponent.play();
+    // Render the stagestage
+    //GameComponent.treasure.x = GameComponent.treasure.x - 10;
+   // GameComponent.addTreasure();
+    GameComponent.renderer.render(GameComponent.stage);
+  };
+  static addTreasure = function() {
+    const TREASUREID = GameComponent.TREASUREID;
+    if (!GameComponent.sprites[TREASUREID]) {
+      GameComponent.add(
+        TREASUREID,
+        GameComponent.stage.width -
+          GameComponent.sprites[TREASUREID].width -
+          48,
+        GameComponent.stage.height / 2 -
+          GameComponent.sprites[TREASUREID].height / 2
+      );
+    }
+  };
+
+  static randomInt = function(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  static add = function(image: string, X?: number, Y?: number) {
+    const TEXTURE = PIXI.utils.TextureCache[image];
+    const SPRITE = new PIXI.Sprite(TEXTURE);
+    if (X !== undefined && Y !== undefined) {
+      SPRITE.position.set(X, Y);
+    }
+    GameComponent.sprites[image] = SPRITE;
+    GameComponent.stage.addChild(SPRITE);
+  };
+
+  getExplorer = function(stageLoader, height: number): PIXI.Sprite {
+    // 2. Access the texture using throuhg the loader's `resources`:
+    const explorer = new PIXI.Sprite(
+      stageLoader.resources['../assets/images/treasureHunter.json'][
+        'explorer.png'
+      ]
     );
-    this.explorer.x = 68;
-    //Center the explorer vertically
-    this.explorer.y = this.stage.height / 2 - this.explorer.height / 2;
-    this.stage.addChild(this.explorer);
-    //3. Create an optional alias called `id` for all the texture atlas 
-    //frame id textures.
-    var id = PIXI.loader.resources["../assets/images/treasureHunter.json"].textures; 
-    
-    //Make the treasure box using the alias
-    this.treasure = new this.Sprite(id["treasure.png"]);
-    this.stage.addChild(this.treasure);
-    //Position the treasure next to the right edge of the canvas
-    this.treasure.x = this.stage.width - this.treasure.width - 48;
-    this.treasure.y = this.stage.height / 2 - this.treasure.height / 2;
-    this.stage.addChild(this.treasure);
-    //Make the exit door
-    this.door = new this.Sprite(id["door.png"]); 
-    this.door.position.set(32, 0);
-    this.stage.addChild(this.door);
-    //Make the blobs
-    var spacing = 48,
-        xOffset = 150,
-        speed = 3,
-        direction = 1;
-    //Make as many blobs as there are `numberOfBlobs`
-    for (var i = 0; i < numberOfBlobs; i++) {
-      //Make a blob
-      this.blobs[i] = new this.Sprite(id["blob.png"]);
-      var x = spacing * i + xOffset;
-      var y = this.randomInt(0, this.stage.height - this.blobs[i].height);
-      //Set the blob's position
-      this.blobs[i].x = x;
-      this.blobs[i].y = y;
-      this.blobs[i].vy = speed * direction;
-      direction *= -1;
-      //Add the blob sprite to the stage
-      this.stage.addChild(this.blobs[i]);
-    }
-    this.ngZone.runOutsideAngular(() => this.gameLoop());
-    }
+    explorer.x = 68;
+    // Center the explorer vertically
+    explorer.y = height / 2 - explorer.height / 2;
+
+    return explorer;
+  };
+
+  getStage(): PIXI.Container {
+    const gameComponent = GameComponent;
+    const stageLoader = gameComponent.loader;
+    const stage = gameComponent.stage; // new PIXI.Container();
+
+    // 3. Create an optional alias called `id` for all the texture atlas
+    // frame id textures.
+    const id = stageLoader.resources['../assets/images/treasureHunter.json'];
+
+    // Make the treasure box using the alias
+    //const treasure = new PIXI.Sprite(id['treasure.png']);
+    // stage.addChild(treasure);
+
+    // Make the treasure box using the alias
+    //const treasure = new PIXI.Sprite(id['treasure.png']);
+    //stage.addChild(treasure);
+
+    // There are 3 ways to make sprites from textures atlas frames
+    // 1. Access the `TextureCache` directly
+
+    // const numberOfBlobs = 2;
+
+    // //  Position the treasure next to the right edge of the canvas
+    // treasure.x = stage.width - treasure.width - 48;
+    // treasure.y = stage.height / 2 - treasure.height / 2;
+    // stage.addChild(treasure);
+    // //  Make the exit door
+    // const door = new PIXI.Sprite(id['door.png']);
+    // door.position.set(32, 0);
+    // stage.addChild(door);
+
+    // // Make the blobs
+    // const spacing = 48,
+    //   xOffset = 150,
+    //   speed = 3,
+    //   direction = 1;
+    // // Make as many blobs as there are `numberOfBlobs`
+    // for (let i = 0; i < numberOfBlobs; i++) {
+    //   // Make a blob
+    //   GameComponent.blobs[i] = new PIXI.Sprite(id['blob.png']);
+    //   const x = spacing * i + xOffset;
+    //   const y = gameComponent.randomInt(
+    //     0,
+    //     stage.height - GameComponent.blobs[i].height
+    //   );
+    //   // Set the blob's position
+    //   GameComponent.blobs[i].x = x;
+    //   GameComponent.blobs[i].y = y;
+
+    //   //ERROR
+    //   GameComponent.blobs[i]['vy'] = speed * direction;
+
+    //   // ERROR should direction be a global varaible
+    //   //direction *= -1;
+
+    //   // Add the blob sprite to the stage
+    //   stage.addChild(GameComponent.blobs[i]);
+
+    // }
+    return stage;
+  }
 
   init(grid) {
     // this.gridRef.push(this.grid);
     this.gridRef.set('0', grid);
   }
+
   addItem(newName: string) {
     this.gridRef.push({ text: newName });
   }
+
   updateItem(key: string, newText: string) {
     this.gridRef.update(key, { text: newText });
   }
@@ -118,65 +244,4 @@ export class GameComponent implements OnInit {
   deleteEverything() {
     this.gridRef.remove();
   }
-
-
-gameLoop(){
-//Loop this function 60 times per second
-requestAnimationFrame(this.gameLoop);
-this.play();
-//Render the stage
-this.renderer.render(this.stage);
-}
-
-play() {
-
- this.blobs.forEach(blob => {
-    //Move the blob
-    blob.y += blob.vy;
-    //Check the blob's screen boundaries
-    var blobHitsWall = this.contain(blob, {x: 28, y: 10, width: 488, height: 480});
-    //If the blob hits the top or bottom of the stage, reverse
-    if (blobHitsWall === "top" || blobHitsWall === "bottom") {
-      blob.vy *= -1;
-    }
-
-})
-
-}
-
-randomInt(min, max) {
-return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-contain(sprite, container) {
-
-  var collision = "none";
-
-  //Left
-  if (sprite.x < container.x) {
-    sprite.x = container.x;
-    collision = "left";
-  }
-
-  //Top
-  if (sprite.y < container.y) {
-    sprite.y = container.y;
-    collision = "top";
-  }
-
-  //Right
-  if (sprite.x + sprite.width > container.width) {
-    sprite.x = container.width - sprite.width;
-    collision = "right";
-  }
-
-  //Bottom
-  if (sprite.y + sprite.height > container.height) {
-    sprite.y = container.height - sprite.height;
-    collision = "bottom";
-  }
-
-  //Return the `collision` value
-  return collision;
-}
 }
