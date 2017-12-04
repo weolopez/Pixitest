@@ -7,7 +7,7 @@ import { GameComponent } from './game/game.component';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
-
+import { FormsModule } from '@angular/forms';
 import { environment } from './../environments/environment';
 @NgModule({
   declarations: [
@@ -16,6 +16,7 @@ import { environment } from './../environments/environment';
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule
   ],

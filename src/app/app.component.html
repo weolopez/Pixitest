@@ -1,12 +1,20 @@
 <div class="col-wrapper">
-  <div style="text-align:center" class="col col-left">
-    <h1>column 1</h1>
-    <div #textExample></div>
-    <app-game></app-game>
+    <div style="display:inline-block;">
+      <p>add</p>
+      <input type="text" placeholder="name" [(ngModel)]="name">
+      <select [(ngModel)]="file_name" required>
+        <option *ngFor="let image of images" [ngValue]="image">{{image}}</option>
+      </select>
+      <button (click)="add(name, file_name)">Add</button>
+      </div>
+
+  <!-- <div #textExample></div> -->
+  <app-game (update)="update($event)"></app-game>
+  <div *ngFor="let sprite of sprites" >
+    <div style="display:inline-block;">
+    {{sprite.name}}
+    <input type=text [(ngModel)]="property">
+    <input #inputElement [name]="sprite.name" type="text" [value]="sprite[property]" (change)="change(inputElement, property)">
+    </div>
   </div>
-  <div class="col col-right">column 2
-    <button (click)="update()">update</button>
-    <div *ngFor="let sprite of sprites">{{sprite.name}}</div>
-  </div>
-  <!-- <app-stage></app-stage> -->
 </div>

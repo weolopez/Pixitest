@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, NgZone, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
@@ -16,12 +16,11 @@ export class GameComponent implements OnChanges {
   static blobs: Array<PIXI.Sprite> = [];
   static loader: PIXI.loaders.Loader;
   static treasure: PIXI.Sprite;
-  static resources: Array<any>;
-  private static _sprites = {};
-
-  @Input('sprites') private static sprites = {};
-
+  static resources: PIXI.loaders.Resource;
   static TREASUREID = 'treasure.png';
+
+  @Input('sprites') public static sprites = {};
+  @Output('update') public update = new EventEmitter<any>();
 
   gridRef: AngularFireList<any>;
   grid: Observable<any[]>;
@@ -42,25 +41,19 @@ export class GameComponent implements OnChanges {
     GameComponent.loader = new PIXI.loaders.Loader();
     GameComponent.stage = new PIXI.Container();
     GameComponent.renderer = PIXI.autoDetectRenderer(512, 512);
-    //const loader = PIXI.loader.add('../assets/images/treasureHunter.json');
-
-    //setup); .load( this.loader
     GameComponent.loader
       .add('gameResouces', '../assets/images/treasureHunter.json')
-      .load((localLoader, resources) => {
-        //this.getStage();
+      .load((localLoader, resources: PIXI.loaders.Resource) => {
+        GameComponent.resources = resources;
         GameComponent.add('dungeon', 'dungeon.png');
         GameComponent.add('door', 'door.png', 32, 0);
         GameComponent.add('blob1', 'blob.png');
-        //   GameComponent.stage.addChild(
-        //     this.getExplorer(localLoader, GameComponent.stage.height)
-        //   );
+        GameComponent.sprites['blob1']['vy'] = 3;
+        this.update.emit(GameComponent.sprites);
       });
 
     GameComponent.loader.onComplete.add(() => {
-      // this.ngZone.runOutsideAngular(() => this.gameLoop());
       document.body.appendChild(GameComponent.renderer.view);
-      //GameComponent.renderer.render(GameComponent.stage);
       GameComponent.gameLoop();
     });
   }
@@ -97,33 +90,30 @@ export class GameComponent implements OnChanges {
   };
 
   static play = function() {
-    GameComponent.blobs.forEach(blob => {
-      // Move the blob
-      //ERROR should vy be a separate global variable
-      // or a movable character type
-      blob.y += blob['vy'];
+    const blob = GameComponent.sprites['blobs1'];
 
-      // Check the blob's screen boundaries
-      const blobHitsWall = GameComponent.contain(blob, {
-        x: 28,
-        y: 10,
-        width: 488,
-        height: 480
-      });
+    GameComponent.sprites['blob1'].y += GameComponent.sprites['blob1']['vy'];
 
-      // If the blob hits the top or bottom of the stage, reverse
-      if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
-        blob['vy'] *= -1;
-      }
+    // Check the blob's screen boundaries
+    const blobHitsWall = GameComponent.contain(GameComponent.sprites['blob1'], {
+      x: 28,
+      y: 10,
+      width: 488,
+      height: 480
     });
+
+    // If the blob hits the top or bottom of the stage, reverse
+    if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
+      GameComponent.sprites['blob1']['vy'] *= -1;
+    }
   };
 
   static gameLoop = function() {
     requestAnimationFrame(GameComponent.gameLoop);
+
     GameComponent.play();
-    // Render the stagestage
-    //GameComponent.treasure.x = GameComponent.treasure.x - 10;
-    GameComponent.addTreasure();
+
+    // GameComponent.addTreasure();
     GameComponent.renderer.render(GameComponent.stage);
   };
   static addTreasure = function() {
@@ -157,7 +147,7 @@ export class GameComponent implements OnChanges {
     //  = SPRITE;
     GameComponent.stage.addChild(GameComponent.sprites[name]);
   };
-  public static getSprites = function () {
+  public static getSprites = function() {
     return GameComponent.sprites;
   };
   getExplorer = function(stageLoader, height: number): PIXI.Sprite {
