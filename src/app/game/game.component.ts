@@ -1,23 +1,26 @@
-import { Component, OnInit, NgZone, Input } from '@angular/core';
+import { Component, OnInit, NgZone, Input, SimpleChanges } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
+import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent {
+export class GameComponent implements OnChanges {
   static stage: PIXI.Container;
   static renderer: any;
   static blobs: Array<PIXI.Sprite> = [];
   static loader: PIXI.loaders.Loader;
   static treasure: PIXI.Sprite;
   static resources: Array<any>;
- // @Input('sprites')
-  static sprites = {};
+  private static _sprites = {};
+
+  @Input('sprites') private static sprites = {};
+
   static TREASUREID = 'treasure.png';
 
   gridRef: AngularFireList<any>;
@@ -46,8 +49,9 @@ export class GameComponent {
       .add('gameResouces', '../assets/images/treasureHunter.json')
       .load((localLoader, resources) => {
         //this.getStage();
-        GameComponent.add('dungeon.png');
-        GameComponent.add('door.png', 32, 0);
+        GameComponent.add('dungeon', 'dungeon.png');
+        GameComponent.add('door', 'door.png', 32, 0);
+        GameComponent.add('blob1', 'blob.png');
         //   GameComponent.stage.addChild(
         //     this.getExplorer(localLoader, GameComponent.stage.height)
         //   );
@@ -119,37 +123,43 @@ export class GameComponent {
     GameComponent.play();
     // Render the stagestage
     //GameComponent.treasure.x = GameComponent.treasure.x - 10;
-   // GameComponent.addTreasure();
+    GameComponent.addTreasure();
     GameComponent.renderer.render(GameComponent.stage);
   };
   static addTreasure = function() {
-    const TREASUREID = GameComponent.TREASUREID;
-    if (!GameComponent.sprites[TREASUREID]) {
-      GameComponent.add(
-        TREASUREID,
-        GameComponent.stage.width -
-          GameComponent.sprites[TREASUREID].width -
-          48,
-        GameComponent.stage.height / 2 -
-          GameComponent.sprites[TREASUREID].height / 2
-      );
-    }
+    GameComponent.sprites['blob1'].x = 64;
+    GameComponent.sprites['blob1'].y = 64;
   };
+  //   const TREASUREID = GameComponent.TREASUREID;
+  //   if (!GameComponent.sprites[TREASUREID]) {
+  //     GameComponent.add(
+  //       TREASUREID,
+  //       GameComponent.stage.width -
+  //         GameComponent.sprites[TREASUREID].width -
+  //         48,
+  //       GameComponent.stage.height / 2 -
+  //         GameComponent.sprites[TREASUREID].height / 2
+  //     );
+  //   }
+  // };
 
   static randomInt = function(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  static add = function(image: string, X?: number, Y?: number) {
+  static add = function(name: string, image: string, X?: number, Y?: number) {
     const TEXTURE = PIXI.utils.TextureCache[image];
-    const SPRITE = new PIXI.Sprite(TEXTURE);
+    GameComponent.sprites[name] = new PIXI.Sprite(TEXTURE);
+    GameComponent.sprites[name].name = name;
     if (X !== undefined && Y !== undefined) {
-      SPRITE.position.set(X, Y);
+      GameComponent.sprites[name].position.set(X, Y);
     }
-    GameComponent.sprites[image] = SPRITE;
-    GameComponent.stage.addChild(SPRITE);
+    //  = SPRITE;
+    GameComponent.stage.addChild(GameComponent.sprites[name]);
   };
-
+  public static getSprites = function () {
+    return GameComponent.sprites;
+  };
   getExplorer = function(stageLoader, height: number): PIXI.Sprite {
     // 2. Access the texture using throuhg the loader's `resources`:
     const explorer = new PIXI.Sprite(
@@ -224,6 +234,10 @@ export class GameComponent {
 
     // }
     return stage;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.dir(changes);
   }
 
   init(grid) {
