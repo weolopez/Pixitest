@@ -1,8 +1,4 @@
-
 <div class="col-wrapper">
-  <div style="text-align:center" class="col col-left">
-    <h1>column 1</h1>
-    <app-game></app-game>
-  </div>
-  <div class="col col-right">column 2</div>
+  <app-sprites [sprites]="sprites" [images]="images"></app-sprites>
+  <app-game (update)="update($event)" (init)="init($event)"></app-game>
 </div>
