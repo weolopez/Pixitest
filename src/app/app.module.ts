@@ -9,10 +9,12 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { FormsModule } from '@angular/forms';
 import { environment } from './../environments/environment';
+import { SpritesComponent } from './components/sprites/sprites.component';
 @NgModule({
   declarations: [
     AppComponent,
     GameComponent,
+    SpritesComponent,
   ],
   imports: [
     BrowserModule,
