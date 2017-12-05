@@ -1,16 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges } from '@angular/core';
 import { GameComponent } from '../../game/game.component';
+import { element } from 'protractor';
+import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'app-sprites',
   templateUrl: './sprites.component.html',
   styleUrls: ['./sprites.component.css']
 })
-export class SpritesComponent implements OnInit {
-
+export class SpritesComponent implements OnInit, OnChanges {
   @Input('sprites') public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
   @ViewChild('textExample') textExample: ElementRef;
+
   title = 'box';
   public app: PIXI.Application;
   public game = GameComponent;
@@ -18,39 +20,16 @@ export class SpritesComponent implements OnInit {
   public name = '';
   public file_name: string;
   constructor() {
-    this.app = new PIXI.Application(800, 150, { backgroundColor: 0x1099bb });
-    const basicText: PIXI.Text = new PIXI.Text('Basic text in pixi');
-    basicText.x = 30;
-    basicText.y = 90;
-
-    this.app.stage.addChild(basicText);
   }
-  ngOnInit(): void {
-    // this.textExample.nativeElement.appendChild(this.app.view);
-    const _sprites = GameComponent.getSprites();
-    for (const element of Object.keys(_sprites)) {
-      this.sprites.push(element);
-    }
-  }
-  change(element, property: string) {
-    GameComponent.sprites[element.name][property] = Number(element.value);
-  }
-  update($event) {
-    const _sprites = GameComponent.getSprites();
-    this.sprites = [];
-    for (const element of Object.keys(_sprites)) {
-      this.sprites.push(_sprites[element]);
-    }
+  ngOnInit(): void {}
 
-    const gameResources = GameComponent.resources['gameResouces'];
-
-    this.images = [];
-    for (const element of Object.keys(gameResources.data.frames)) {
-      this.images.push(element);
-    }
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('CHANGES');
+  }
+  change(e, property: string) {
+    GameComponent.sprites[e.name][property] = Number(e.value);
   }
   add(name, file_name) {
     GameComponent.add(name, file_name);
-    this.update(name);
   }
 }
