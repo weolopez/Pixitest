@@ -1,6 +1,4 @@
 <div class="col-wrapper">
-<app-sprites [sprites]="sprites" [images]="images"></app-sprites>
-  <!-- <div #textExample></div> -->
+  <app-sprites [sprites]="sprites" [images]="images"></app-sprites>
   <app-game (update)="update($event)" (init)="init($event)"></app-game>
-
 </div>

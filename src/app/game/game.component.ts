@@ -11,52 +11,30 @@ import { resource } from 'selenium-webdriver/http';
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnChanges {
+export class GameComponent  {
   static stage: PIXI.Container;
   static renderer: any;
-  static blobs: Array<PIXI.Sprite> = [];
   static loader: PIXI.loaders.Loader;
   static treasure: PIXI.Sprite;
   static resources: PIXI.loaders.Resource;
-  static TREASUREID = 'treasure.png';
   public static instance: GameComponent;
 
   @Input('sprites') public static sprites = {};
   @Output('update') public update = new EventEmitter<any>();
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
 
-  gridRef: AngularFireList<any>;
-  grid: Observable<any[]>;
-  spriteRef: AngularFireList<any>;
-  spriteObservable: Observable<any[]>;
 
-  Texture = PIXI.Texture;
-  Sprite = PIXI.Sprite;
-
-  dungeon: PIXI.Sprite;
-  explorer: PIXI.Sprite;
-  door: PIXI.Sprite;
-
-  constructor(public ngZone: NgZone, db: AngularFireDatabase) {
+  constructor(public ngZone: NgZone) {
     if (GameComponent.instance) {
       return;
     }
     GameComponent.instance = this;
-    this.gridRef = db.list('grid/0');
-    this.grid = this.gridRef.snapshotChanges().map(changes => {
-      return changes.map(c => ({ key: c.payload.key, ...c.payload.val() }));
-    });
-
-    this.spriteRef = db.list('sprites');
-    this.spriteObservable = this.spriteRef.snapshotChanges().map(changes => {
-      return changes.map(c => ({ key: c.payload.key, ...c.payload.val() }));
-    });
 
     GameComponent.loader = new PIXI.loaders.Loader();
     GameComponent.stage = new PIXI.Container();
     GameComponent.renderer = PIXI.autoDetectRenderer(512, 512);
     GameComponent.loader
-      .add('gameResouces', '../assets/images/treasureHunter.json')
+      .add('gameResources', '../assets/images/treasureHunter.json')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);
@@ -143,26 +121,4 @@ export class GameComponent implements OnChanges {
     GameComponent.stage.addChild(GameComponent.sprites[name]);
     GameComponent.instance.update.emit(GameComponent.sprites[name]);
   };
-
-  public static getSprites = function() {
-    return GameComponent.sprites;
-  };
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.dir(changes);
-  }
-
-  addItem(newName: string) {
-    this.gridRef.push({ text: newName });
-  }
-
-  updateItem(key: string, newText: string) {
-    this.gridRef.update(key, { text: newText });
-  }
-  deleteItem(key: string) {
-    this.gridRef.remove(key);
-  }
-  deleteEverything() {
-    this.gridRef.remove();
-  }
 }

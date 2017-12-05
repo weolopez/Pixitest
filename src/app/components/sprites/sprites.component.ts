@@ -27,7 +27,13 @@ export class SpritesComponent implements OnInit, OnChanges {
     console.log('CHANGES');
   }
   change(e, property: string) {
-    GameComponent.sprites[e.name][property] = Number(e.value);
+    if (!e.name) { return; }
+
+    if (typeof GameComponent.sprites[e.name][property] === 'string') {
+      GameComponent.sprites[e.name][property] = e.value;
+    } else if (typeof GameComponent.sprites[e.name][property] === 'number') {
+      GameComponent.sprites[e.name][property] = Number(e.value);
+    }
   }
   add(name, file_name) {
     GameComponent.add(name, file_name);
