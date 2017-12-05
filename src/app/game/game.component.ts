@@ -34,7 +34,7 @@ export class GameComponent  {
     GameComponent.stage = new PIXI.Container();
     GameComponent.renderer = PIXI.autoDetectRenderer(512, 512);
     GameComponent.loader
-      .add('gameResources', '../assets/images/treasureHunter.json')
+      .add('gameResources', 'assets/images/treasureHunter.json')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);

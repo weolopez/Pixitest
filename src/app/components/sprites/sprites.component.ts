@@ -19,7 +19,7 @@ export class SpritesComponent implements OnInit, OnChanges {
   public property: string;
   public name = '';
   public file_name: string;
-  public show=false;
+  public show = false;
   constructor() {
   }
   ngOnInit(): void {}
