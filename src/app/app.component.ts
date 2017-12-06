@@ -3,7 +3,7 @@ import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GameComponent } from './game/game.component';
 import { AngularFireList, AngularFireDatabase, AngularFireObject, AngularFireAction } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
-import { setInterval } from 'timers';
+import { setInterval, setTimeout } from 'timers';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +32,7 @@ export class AppComponent {
       }
     });
 
-    setInterval(() => {
+    setTimeout(() => {
       for (const key of Object.keys(GameComponent.sprites)) {
         const sprite = GameComponent.sprites[key];
         const keys = sprite.keys;
@@ -41,7 +41,7 @@ export class AppComponent {
         }
         this.db.object('sprites/' + sprite.name).set(keys);
       }
-    }, 500);
+    }, 5500);
   }
   init(resource) {
     for (const element of Object.keys(resource['gameResources'].data.frames)) {
