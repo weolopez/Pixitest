@@ -10,11 +10,13 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
 import { FormsModule } from '@angular/forms';
 import { environment } from './../environments/environment';
 import { SpritesComponent } from './components/sprites/sprites.component';
+import { BehaviorComponent } from './components/behavior/behavior.component';
 @NgModule({
   declarations: [
     AppComponent,
     GameComponent,
     SpritesComponent,
+    BehaviorComponent,
   ],
   imports: [
     BrowserModule,

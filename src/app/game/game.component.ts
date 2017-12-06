@@ -105,8 +105,8 @@ export class GameComponent  {
   };
 
   static play = function() {
-    const blob = GameComponent.sprites['blobs1'];
-
+    const blob = GameComponent.sprites['blob1'];
+    if (!blob) return;
     GameComponent.sprites['blob1'].y += GameComponent.sprites['blob1']['vy'];
 
     // Check the blob's screen boundaries

@@ -1,4 +1,19 @@
 <div class="col-wrapper">
-  <app-sprites [sprites]="sprites" [images]="images"></app-sprites>
+  <section class="row">
+    <ul>
+      <li>
+        <a>
+        <app-sprites [sprites]="sprites" [images]="images">
+        </app-sprites>
+      </a>
+      </li>
+      <li>
+        <a>
+        <app-behavior>
+        </app-behavior>
+      </a>
+      </li>
+    </ul>
+  </section>
   <app-game (update)="update($event)" (init)="init($event)"></app-game>
 </div>
