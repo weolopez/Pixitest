@@ -48,7 +48,7 @@ export class GameComponent  {
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);
-        let sprite: SpriteObject = <SpriteObject>{};
+        const sprite: SpriteObject = <SpriteObject>{};
         sprite.name = 'dungeon';
         sprite.filename = 'dungeon.png';
         GameComponent.add(sprite);
