@@ -2,10 +2,10 @@
 <section *ngIf="show">
   <div style="display:inline-block;">
     <input type="text" placeholder="name" [(ngModel)]="name">
-    <select [(ngModel)]="file_name" required>
+    <select [(ngModel)]="filename" required>
       <option *ngFor="let image of images" [ngValue]="image">{{image}}</option>
     </select>
-    <button (click)="add(name, file_name)">Add</button>
+    <button (click)="add(name, filename)">Add</button>
   </div>
   <div *ngFor="let sprite of sprites">
     <div style="display:inline-block;">

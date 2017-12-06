@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges } from '@angular/core';
-import { GameComponent } from '../../game/game.component';
+import { GameComponent, SpriteObject } from '../../game/game.component';
 import { element } from 'protractor';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
@@ -18,7 +18,7 @@ export class SpritesComponent implements OnInit, OnChanges {
   public game = GameComponent;
   public property: string;
   public name = '';
-  public file_name: string;
+  public filename: string;
   public show = false;
   constructor() {
   }
@@ -36,7 +36,10 @@ export class SpritesComponent implements OnInit, OnChanges {
       GameComponent.sprites[e.name][property] = Number(e.value);
     }
   }
-  add(name, file_name) {
-    GameComponent.add(name, file_name);
+  add(name, filename) {
+    const sprite: SpriteObject = <SpriteObject> {};
+    sprite.name = name;
+    sprite.filename = filename;
+    GameComponent.add(sprite);
   }
 }

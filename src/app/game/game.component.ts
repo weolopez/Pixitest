@@ -6,6 +6,16 @@ import { Observable } from 'rxjs/Observable';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { resource } from 'selenium-webdriver/http';
 
+
+export interface SpriteObject {
+  name: string;
+  filename: string;
+  x?: number;
+  vx?: number;
+  y?: number;
+  vy?: number;
+}
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
@@ -38,10 +48,23 @@ export class GameComponent  {
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);
-        GameComponent.add('dungeon', 'dungeon.png');
-        GameComponent.add('door', 'door.png', 32, 0);
-        GameComponent.add('blob1', 'blob.png');
-        GameComponent.sprites['blob1']['vy'] = 3;
+        let sprite: SpriteObject = <SpriteObject>{};
+        sprite.name = 'dungeon';
+        sprite.filename = 'dungeon.png';
+        GameComponent.add(sprite);
+        // sprite = <SpriteObject>{};
+        // sprite.name = 'door';
+        // sprite.filename = 'door.png';
+        // sprite.x = 32;
+        // sprite.y = 32;
+        // GameComponent.add(sprite);
+        // sprite = <SpriteObject>{};
+        // sprite.name = 'blob1';
+        // sprite.filename = 'blob.png';
+        // sprite.x = 32;
+        // sprite.y = 32;
+        // sprite.vy = 3;
+        // GameComponent.add(sprite);
       });
 
     GameComponent.loader.onComplete.add(() => {
@@ -110,15 +133,16 @@ export class GameComponent  {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  static add = function(name: string, image: string, X?: number, Y?: number) {
-    const TEXTURE = PIXI.utils.TextureCache[image];
-    GameComponent.sprites[name] = new PIXI.Sprite(TEXTURE);
-    GameComponent.sprites[name].name = name;
-    if (X !== undefined && Y !== undefined) {
-      GameComponent.sprites[name].position.set(X, Y);
+  static add = function(sprite: SpriteObject) {
+    const TEXTURE = PIXI.utils.TextureCache[sprite.filename];
+    GameComponent.sprites[sprite.name] = new PIXI.Sprite(TEXTURE);
+
+    for (const key of Object.keys(sprite)) {
+      GameComponent.sprites[sprite.name][key] = sprite[key];
     }
-    //  = SPRITE;
-    GameComponent.stage.addChild(GameComponent.sprites[name]);
-    GameComponent.instance.update.emit(GameComponent.sprites[name]);
+    GameComponent.sprites[sprite.name]['name'] = sprite.name;
+    GameComponent.sprites[sprite.name]['keys'] = sprite;
+    GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
+    GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
   };
 }

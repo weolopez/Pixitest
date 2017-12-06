@@ -1,7 +1,9 @@
+import {FirebaseObjectObservable} from 'angularfire2/database-deprecated';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GameComponent } from './game/game.component';
-import { AngularFireList, AngularFireDatabase } from 'angularfire2/database';
+import { AngularFireList, AngularFireDatabase, AngularFireObject, AngularFireAction } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
+import { setInterval } from 'timers';
 
 @Component({
   selector: 'app-root',
@@ -14,17 +16,32 @@ export class AppComponent {
   public sprites: Array<any> = [];
   public images: Array<any> = [];
 
-  spriteRef: AngularFireList<any>;
-  spriteObservable: Observable<any[]>;
+  spriteRef: AngularFireObject<any>;
+  spriteObservable: Observable<any>;
+  spriteFB = {};
+  public keys = ['name', 'x', 'y', 'vx', 'vy'];
 
-  constructor(db: AngularFireDatabase) {
-    this.spriteRef = db.list('sprites');
-    this.spriteObservable = this.spriteRef.snapshotChanges().map(changes => {
-      return changes.map(c => ({
-        key: c.payload.key,
-        ...c.payload.val()
-      }));
+  constructor(private db: AngularFireDatabase) {
+    this.spriteRef = db.object('sprites');
+    this.spriteObservable = this.spriteRef.valueChanges();
+    this.spriteObservable.subscribe(changes => {
+      for (const key of Object.keys(changes)) {
+        if (!GameComponent.sprites[key]) {
+          GameComponent.add(changes[key]);
+        }
+      }
     });
+
+    setInterval(() => {
+      for (const key of Object.keys(GameComponent.sprites)) {
+        const sprite = GameComponent.sprites[key];
+        const keys = sprite.keys;
+        for (const k of Object.keys(keys)) {
+            keys[k] = sprite[k];
+        }
+        this.db.object('sprites/' + sprite.name).set(keys);
+      }
+    }, 500);
   }
   init(resource) {
     for (const element of Object.keys(resource['gameResources'].data.frames)) {
@@ -33,5 +50,8 @@ export class AppComponent {
   }
   update(sprite) {
     this.sprites.push(sprite);
+    if (sprite.name) {
+      this.db.object('sprites/' + sprite.name).set(sprite.keys);
+    }
   }
 }
