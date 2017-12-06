@@ -131,7 +131,7 @@ export class GameComponent  {
       if (sprite.N <= 0 || sprite.N === undefined) { continue; } else { sprite.N -= 1; }
       if (sprite.vy) { sprite.y += sprite.vy; } else { continue; }
       if (sprite.vx) { sprite.x += sprite.vx; } else { continue; }
-      const blobHitsWall = BehaviorComponent.contain(sprite);
+      const blobHitsWall = GameComponent.contain(sprite);
       if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
         sprite.vy *= -1;
       }

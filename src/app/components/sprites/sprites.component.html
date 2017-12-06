@@ -1,5 +1,11 @@
-<button (click)="show=!show"> Edit Sprite </button>
-<section *ngIf="show">
+<section>
+
+  <div style="display:inline-block;">
+    <select [(ngModel)]="sprite" required (change)="selectionChanged(sprite)">
+      <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
+    </select>
+  </div>
+
   <div style="display:inline-block;">
     <input type="text" placeholder="name" [(ngModel)]="name">
     <select [(ngModel)]="filename" required>
@@ -7,11 +13,34 @@
     </select>
     <button (click)="add(name, filename)">Add</button>
   </div>
-  <div *ngFor="let sprite of sprites">
-    <div style="display:inline-block;">
-      {{sprite.name}}
-      <input type=text [(ngModel)]="property" placeholder="Enter sprite property like 'x'">
-      <input #inputElement [name]="sprite.name" type="text" [value]="sprite[property]" (change)="change(inputElement, property)">
-    </div>
-  </div>
+
+
+  <mat-grid-list cols="4" rowHeight="300px">
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <article style="margin-top: 8px;padding-top:0px;width:100%;height: 100%;">
+        <div *ngFor="let key of keys">
+          <div style="display:inline-block;">
+            {{key}}
+          </div>
+        </div>
+      </article>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <article style="margin-top: 8px;padding-top:0px;width:100%;height: 100%;">
+        <div *ngFor="let key of keys">
+          <div style="display:inline-block;">
+            <input #inputElement [name]="sprite.name" type="text" [value]="sprite[key]" (change)="change(inputElement, key)">
+          </div>
+        </div>
+      </article>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2" [rowspan]="1">
+      <article class="full">
+        <textarea class="full">
+          </textarea>
+      </article>
+    </mat-grid-tile>
+  </mat-grid-list>
 </section>

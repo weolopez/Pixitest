@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter, OnChanges } from '@angular/core';
 import { GameComponent, SpriteObject } from '../../game/game.component';
 
 @Component({
@@ -6,7 +6,7 @@ import { GameComponent, SpriteObject } from '../../game/game.component';
   templateUrl: './sprites.component.html',
   styleUrls: ['./sprites.component.css']
 })
-export class SpritesComponent implements OnInit {
+export class SpritesComponent implements OnInit, OnChanges {
   @Input('sprites') public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
@@ -20,10 +20,23 @@ export class SpritesComponent implements OnInit {
   public name = '';
   public filename: string;
   public show = false;
+  public selectValue;
+  public keys = [];
+  public sprite;
+  public image;
   constructor() {
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    //this.sprite = this.sprites[4];
+  }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    setTimeout(() => {
+      this.sprite = this.sprites[4];
+      this.filename = this.images[4];
+      this.selectionChanged();
+    }, 1000, this);
+  }
   change(e, property: string) {
     if (!e.name) { return; }
     const sprite = GameComponent.sprites[e.name];
@@ -51,5 +64,9 @@ export class SpritesComponent implements OnInit {
     sprite.name = name;
     sprite.filename = filename;
     GameComponent.add(sprite);
+  }
+
+  selectionChanged() {
+    this.keys = Object.keys(this.sprite.keys);
   }
 }

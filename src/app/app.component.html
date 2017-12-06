@@ -1,19 +1,15 @@
 <div class="col-wrapper">
-  <section class="row">
-    <ul>
-      <li>
-        <a>
-        <app-sprites [sprites]="sprites" [images]="images" (update)="update($event)">
-        </app-sprites>
-      </a>
-      </li>
-      <li>
-        <a>
-        <app-behavior>
-        </app-behavior>
-      </a>
-      </li>
-    </ul>
-  </section>
-  <app-game (update)="update($event)" (init)="init($event)"></app-game>
+    <mat-tab-group [dynamicHeight]="true">
+        <!-- <mat-tab label="Behavior">
+          <app-behavior  [sprites]="sprites" >
+          </app-behavior>
+      </mat-tab> -->
+        <mat-tab label="Sprites">
+            <app-sprites [sprites]="sprites" [images]="images" (update)="update($event)">
+            </app-sprites>
+        </mat-tab>
+        <mat-tab label="Game">
+            <app-game (update)="update($event)" (init)="init($event)"></app-game>
+        </mat-tab>
+    </mat-tab-group>
 </div>

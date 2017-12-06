@@ -30,9 +30,9 @@ export class AppComponent {
           GameComponent.add(changes[key]);
         }
       }
-      const fred = GameComponent.sprites['fred'];
-      fred.behaviors = ['moveVertically'];
-      BehaviorComponent.sprites.push(fred);
+      // const fred = GameComponent.sprites['fred'];
+      // fred.behaviors = ['moveVertically'];
+      // BehaviorComponent.sprites.push(fred);
 
     });
 

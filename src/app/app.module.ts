@@ -11,6 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { environment } from './../environments/environment';
 import { SpritesComponent } from './components/sprites/sprites.component';
 import { BehaviorComponent } from './components/behavior/behavior.component';
+
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatGridListModule} from '@angular/material/grid-list';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,6 +25,9 @@ import { BehaviorComponent } from './components/behavior/behavior.component';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
+    MatTabsModule,
+    MatGridListModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule
