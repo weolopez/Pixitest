@@ -22,6 +22,8 @@ export class BehaviorComponent {
       `
   };
 
+  public show = false;
+
   constructor() {
     setInterval(() => {
       const behaviors = BehaviorComponent.behaviors;
