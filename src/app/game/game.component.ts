@@ -5,6 +5,7 @@ import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { resource } from 'selenium-webdriver/http';
+import { BehaviorComponent } from '../components/behavior/behavior.component';
 
 
 export interface SpriteObject {
@@ -73,7 +74,15 @@ export class GameComponent  {
     });
   }
 
-  static contain = function(sprite, container) {
+  static contain = function(sprite) {
+
+    const container = {
+      x: 28,
+      y: 10,
+      width: 488,
+      height: 480
+    };
+
     let collision = 'none';
 
     // Left
@@ -103,23 +112,32 @@ export class GameComponent  {
     // Return the `collision` value
     return collision;
   };
-
-  static play = function() {
-    const blob = GameComponent.sprites['blob1'];
-    if (!blob) return;
-    GameComponent.sprites['blob1'].y += GameComponent.sprites['blob1']['vy'];
+  static moveSprite = function(sprite) {
 
     // Check the blob's screen boundaries
-    const blobHitsWall = GameComponent.contain(GameComponent.sprites['blob1'], {
-      x: 28,
-      y: 10,
-      width: 488,
-      height: 480
-    });
+    const blobHitsWall = GameComponent.contain(sprite);
 
     // If the blob hits the top or bottom of the stage, reverse
     if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
       GameComponent.sprites['blob1']['vy'] *= -1;
+    }
+    if (blobHitsWall === 'left' || blobHitsWall === 'right') {
+     sprite.vx *= -1;
+    }
+  };
+  static play = function() {
+    for (const key of Object.keys(GameComponent.sprites)) {
+      const sprite = GameComponent.sprites[key];
+      if (sprite.N <= 0 || sprite.N === undefined) { continue; } else { sprite.N -= 1; }
+      if (sprite.vy) { sprite.y += sprite.vy; } else { continue; }
+      if (sprite.vx) { sprite.x += sprite.vx; } else { continue; }
+      const blobHitsWall = BehaviorComponent.contain(sprite);
+      if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
+        sprite.vy *= -1;
+      }
+      if (blobHitsWall === 'left' || blobHitsWall === 'right') {
+       sprite.vx *= -1;
+      }
     }
   };
 

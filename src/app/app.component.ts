@@ -1,9 +1,9 @@
-import {FirebaseObjectObservable} from 'angularfire2/database-deprecated';
+import { BehaviorComponent } from './components/behavior/behavior.component';
+import { FirebaseObjectObservable } from 'angularfire2/database-deprecated';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GameComponent } from './game/game.component';
 import { AngularFireList, AngularFireDatabase, AngularFireObject, AngularFireAction } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
-import { setInterval, setTimeout } from 'timers';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +30,10 @@ export class AppComponent {
           GameComponent.add(changes[key]);
         }
       }
+      const fred = GameComponent.sprites['fred'];
+      fred.behaviors = ['moveVertically'];
+      BehaviorComponent.sprites.push(fred);
+
     });
 
     setTimeout(() => {
@@ -37,7 +41,7 @@ export class AppComponent {
         const sprite = GameComponent.sprites[key];
         const keys = sprite.keys;
         for (const k of Object.keys(keys)) {
-            keys[k] = sprite[k];
+          keys[k] = sprite[k];
         }
         this.db.object('sprites/' + sprite.name).set(keys);
       }
@@ -49,8 +53,11 @@ export class AppComponent {
     }
   }
   update(sprite) {
-    this.sprites.push(sprite);
+    if (!this.sprites.find(s => s.name === sprite.name)) { this.sprites.push(sprite); }
     if (sprite.name) {
+      for (const key of Object.keys(sprite.keys)) {
+        sprite.keys[key] = sprite[key];
+      }
       this.db.object('sprites/' + sprite.name).set(sprite.keys);
     }
   }

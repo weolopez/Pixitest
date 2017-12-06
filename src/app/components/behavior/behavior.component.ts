@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { setInterval } from 'timers';
 
 @Component({
   selector: 'app-behavior',
@@ -8,17 +7,32 @@ import { setInterval } from 'timers';
 })
 export class BehaviorComponent {
   public static sprites = [];
-  public behaviors = {
+  public static behaviors = {
     moveVertically:
-      'sprite.y += sprite.vy; sprite.vy = (contain(sprite)) ? sprite.vy*-1:sprite.vy;'
+      `
+      //  if (sprite.vy) sprite.y += sprite.vy;
+      //  if (sprite.vx) sprite.x += sprite.vx;
+       let blobHitsWall = BehaviorComponent.contain(sprite);
+       if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
+         sprite.vy *= -1;
+       }
+       if (blobHitsWall === 'left' || blobHitsWall === 'right') {
+        sprite.vx *= -1;
+       }
+      `
   };
 
   constructor() {
     setInterval(() => {
+      const behaviors = BehaviorComponent.behaviors;
       BehaviorComponent.sprites.forEach(sprite => {
-        sprite.behaviors.array.forEach(behavior => {
-          console.dir(behavior);
-        });
+        if (sprite.behaviors) {
+          sprite.behaviors.forEach(behavior => {
+            console.dir(behavior);
+            // tslint:disable-next-line:no-eval
+            eval(behaviors[behavior]);
+          });
+        }
       });
     }, 500);
   }

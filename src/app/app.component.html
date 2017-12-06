@@ -3,7 +3,7 @@
     <ul>
       <li>
         <a>
-        <app-sprites [sprites]="sprites" [images]="images">
+        <app-sprites [sprites]="sprites" [images]="images" (update)="update($event)">
         </app-sprites>
       </a>
       </li>
