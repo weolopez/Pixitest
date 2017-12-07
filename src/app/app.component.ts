@@ -54,6 +54,10 @@ export class AppComponent {
   update(sprite) {
     if (!this.sprites.find(s => s.name === sprite.name)) {
       this.sprites.push(sprite);
+    // sprite.interactive = true;
+    //   sprite.on('touchend', function(e) {
+    //     console.log("touch!!");
+    //  });
     }
     if (sprite.name) {
       for (const key of Object.keys(sprite.keys)) {

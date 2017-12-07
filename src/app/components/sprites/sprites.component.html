@@ -34,7 +34,7 @@
             <input #inputElement [name]="sprite.name" type="text" [value]="sprite[key]" (change)="change(inputElement, key)">
           </div>
         </div>
-        <input #newFieldElement type=text [(ngModel)]="newValue" (change)="change(newFieldElement, newField)">
+        <input #newFieldElement [type]="getType()" [(ngModel)]="newValue" (change)="change(newFieldElement, newField)">
       </article>
     </mat-grid-tile>
 

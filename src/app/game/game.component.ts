@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, NgZone, Input, SimpleChanges, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
@@ -6,7 +6,6 @@ import { Observable } from 'rxjs/Observable';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { resource } from 'selenium-webdriver/http';
 import { BehaviorComponent } from '../components/behavior/behavior.component';
-
 
 export interface SpriteObject {
   name: string;
@@ -22,7 +21,7 @@ export interface SpriteObject {
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent  {
+export class GameComponent {
   static stage: PIXI.Container;
   static renderer: any;
   static loader: PIXI.loaders.Loader;
@@ -33,7 +32,7 @@ export class GameComponent  {
   @Input('sprites') public static sprites = {};
   @Output('update') public update = new EventEmitter<any>();
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
-
+  @ViewChild('gameElement') gameElement: ElementRef;
 
   constructor(public ngZone: NgZone) {
     if (GameComponent.instance) {
@@ -69,13 +68,12 @@ export class GameComponent  {
       });
 
     GameComponent.loader.onComplete.add(() => {
-      document.body.appendChild(GameComponent.renderer.view);
+      this.gameElement.nativeElement.appendChild(GameComponent.renderer.view);
       GameComponent.gameLoop();
     });
   }
 
   static contain = function(sprite) {
-
     const container = {
       x: 28,
       y: 10,
@@ -113,7 +111,6 @@ export class GameComponent  {
     return collision;
   };
   static moveSprite = function(sprite) {
-
     // Check the blob's screen boundaries
     const blobHitsWall = GameComponent.contain(sprite);
 
@@ -122,21 +119,33 @@ export class GameComponent  {
       GameComponent.sprites['blob1']['vy'] *= -1;
     }
     if (blobHitsWall === 'left' || blobHitsWall === 'right') {
-     sprite.vx *= -1;
+      sprite.vx *= -1;
     }
   };
   static play = function() {
     for (const key of Object.keys(GameComponent.sprites)) {
       const sprite = GameComponent.sprites[key];
-      if (sprite.N <= 0 || sprite.N === undefined) { continue; } else { sprite.N -= 1; }
-      if (sprite.vy) { sprite.y += sprite.vy; } else { continue; }
-      if (sprite.vx) { sprite.x += sprite.vx; } else { continue; }
+      if (sprite.N <= 0 || sprite.N === undefined) {
+        continue;
+      } else {
+        sprite.N -= 1;
+      }
+      if (sprite.vy) {
+        sprite.y += sprite.vy;
+      } else {
+        continue;
+      }
+      if (sprite.vx) {
+        sprite.x += sprite.vx;
+      } else {
+        continue;
+      }
       const blobHitsWall = GameComponent.contain(sprite);
       if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
         sprite.vy *= -1;
       }
       if (blobHitsWall === 'left' || blobHitsWall === 'right') {
-       sprite.vx *= -1;
+        sprite.vx *= -1;
       }
     }
   };

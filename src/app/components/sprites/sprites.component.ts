@@ -47,16 +47,20 @@ export class SpritesComponent implements OnInit, OnChanges {
     if (!e.value) {
       return;
     }
+    const propertyType = typeof this.sprite[property];
+    const valueType = typeof e.value ;
+    const fieldType = e.type ;
+
     if (!this.sprite.keys) { this.sprite.keys = {}; }
 
-    if (typeof this.sprite[property] === 'string') {
-      this.sprite[property] = e.value;
-      this.sprite.keys[property] = e.value;
-    } else if (typeof this.sprite[property] === 'number') {
+    if (propertyType === 'number') {
       this.sprite[property] = Number(e.value);
       this.sprite.keys[property] = Number(e.value);
+    } else if (typeof this.sprite[property] === 'string') {
+      this.sprite[property] = e.value;
+      this.sprite.keys[property] = e.value;
     } else {
-      if (typeof Number(e.value) === 'number') {
+      if (valueType === 'number') {
         this.sprite[property] = Number(e.value);
         this.sprite.keys[property] = Number(e.value);
       } else {
@@ -76,5 +80,12 @@ export class SpritesComponent implements OnInit, OnChanges {
   selectionChanged() {
     if (!this.sprite) { return; }
     this.keys = Object.keys(this.sprite.keys);
+  }
+  getType() {
+    if (this.newField.length > 1) {
+      return typeof this.sprite[this.newField];
+    } else {
+      return 'string';
+    }
   }
 }
