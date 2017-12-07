@@ -4,12 +4,13 @@
           <app-behavior  [sprites]="sprites" >
           </app-behavior>
       </mat-tab> -->
+
+        <mat-tab label="Game">
+          <app-game (update)="update($event)" (init)="init($event)"></app-game>
+        </mat-tab>
         <mat-tab label="Sprites">
             <app-sprites [sprites]="sprites" [images]="images" (update)="update($event)">
             </app-sprites>
-        </mat-tab>
-        <mat-tab label="Game">
-            <app-game (update)="update($event)" (init)="init($event)"></app-game>
         </mat-tab>
     </mat-tab-group>
 </div>

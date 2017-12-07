@@ -19,10 +19,11 @@
     <mat-grid-tile [colspan]="1" [rowspan]="1">
       <article style="margin-top: 8px;padding-top:0px;width:100%;height: 100%;">
         <div *ngFor="let key of keys">
-          <div style="display:inline-block;">
+          <div class="keyLable">
             {{key}}
           </div>
         </div>
+        <input size="15" type=text [(ngModel)]="newField" (change)="changeNewField($event)" placeholder="Enter a lable">
       </article>
     </mat-grid-tile>
 
@@ -33,6 +34,7 @@
             <input #inputElement [name]="sprite.name" type="text" [value]="sprite[key]" (change)="change(inputElement, key)">
           </div>
         </div>
+        <input #newFieldElement type=text [(ngModel)]="newValue" (change)="change(newFieldElement, newField)">
       </article>
     </mat-grid-tile>
 

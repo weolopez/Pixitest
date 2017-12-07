@@ -20,9 +20,9 @@ export class AppComponent {
   spriteObservable: Observable<any>;
   spriteFB = {};
   public keys = ['name', 'x', 'y', 'vx', 'vy'];
-
+  prefix = '';
   constructor(private db: AngularFireDatabase) {
-    this.spriteRef = db.object('sprites');
+    this.spriteRef = db.object(this.prefix + 'sprites');
     this.spriteObservable = this.spriteRef.valueChanges();
     this.spriteObservable.subscribe(changes => {
       for (const key of Object.keys(changes)) {
@@ -33,7 +33,6 @@ export class AppComponent {
       // const fred = GameComponent.sprites['fred'];
       // fred.behaviors = ['moveVertically'];
       // BehaviorComponent.sprites.push(fred);
-
     });
 
     setTimeout(() => {
@@ -43,7 +42,7 @@ export class AppComponent {
         for (const k of Object.keys(keys)) {
           keys[k] = sprite[k];
         }
-        this.db.object('sprites/' + sprite.name).set(keys);
+        this.db.object(this.prefix + 'sprites/' + sprite.name).set(keys);
       }
     }, 5500);
   }
@@ -53,12 +52,15 @@ export class AppComponent {
     }
   }
   update(sprite) {
-    if (!this.sprites.find(s => s.name === sprite.name)) { this.sprites.push(sprite); }
+    if (!this.sprites.find(s => s.name === sprite.name)) {
+      this.sprites.push(sprite);
+    }
     if (sprite.name) {
       for (const key of Object.keys(sprite.keys)) {
         sprite.keys[key] = sprite[key];
       }
-      this.db.object('sprites/' + sprite.name).set(sprite.keys);
+      console.dir(sprite.keys);
+      this.db.object(this.prefix + 'sprites/' + sprite.name).set(sprite.keys);
     }
   }
 }

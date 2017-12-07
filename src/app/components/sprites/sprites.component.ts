@@ -14,7 +14,8 @@ export class SpritesComponent implements OnInit, OnChanges {
   @ViewChild('textExample') textExample: ElementRef;
 
   title = 'box';
-  public app: PIXI.Application;
+  public newValue = '';
+  public newField = '';
   public game = GameComponent;
   public property: string;
   public name = '';
@@ -24,49 +25,56 @@ export class SpritesComponent implements OnInit, OnChanges {
   public keys = [];
   public sprite;
   public image;
-  constructor() {
-  }
+  constructor() {}
   ngOnInit(): void {
-    //this.sprite = this.sprites[4];
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    setTimeout(() => {
-      this.sprite = this.sprites[4];
-      this.filename = this.images[4];
-      this.selectionChanged();
-    }, 1000, this);
+    setTimeout(
+      () => {
+        this.sprite = this.sprites[4];
+        this.filename = this.images[4];
+        this.selectionChanged();
+      },
+      1000,
+      this
+    );
+  }
+  changeNewField($event) {
+    this.newValue = this.sprite[this.newField];
   }
   change(e, property: string) {
-    if (!e.name) { return; }
-    const sprite = GameComponent.sprites[e.name];
+    if (!e.value) {
+      return;
+    }
+    if (!this.sprite.keys) { this.sprite.keys = {}; }
 
-
-    if (typeof sprite[property] === 'string') {
-      sprite[property] = e.value;
-      sprite.keys[property] = e.value;
-    } else if (typeof sprite[property] === 'number') {
-      sprite[property] = Number(e.value);
-      sprite.keys[property] = Number(e.value);
+    if (typeof this.sprite[property] === 'string') {
+      this.sprite[property] = e.value;
+      this.sprite.keys[property] = e.value;
+    } else if (typeof this.sprite[property] === 'number') {
+      this.sprite[property] = Number(e.value);
+      this.sprite.keys[property] = Number(e.value);
     } else {
       if (typeof Number(e.value) === 'number') {
-      sprite[property] = Number(e.value);
-      sprite.keys[property] = Number(e.value);
+        this.sprite[property] = Number(e.value);
+        this.sprite.keys[property] = Number(e.value);
       } else {
-        sprite[property] = e.value;
-        sprite.keys[property] = e.value;
+        this.sprite[property] = e.value;
+        this.sprite.keys[property] = e.value;
       }
     }
-    this.update.emit(sprite);
+    this.update.emit(this.sprite);
   }
   add(name, filename) {
-    const sprite: SpriteObject = <SpriteObject> {};
+    const sprite: SpriteObject = <SpriteObject>{};
     sprite.name = name;
     sprite.filename = filename;
     GameComponent.add(sprite);
   }
 
   selectionChanged() {
+    if (!this.sprite) { return; }
     this.keys = Object.keys(this.sprite.keys);
   }
 }
