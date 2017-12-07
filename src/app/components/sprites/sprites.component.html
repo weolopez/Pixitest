@@ -1,7 +1,7 @@
 <section>
 
   <div style="display:inline-block;">
-    <select [(ngModel)]="sprite" required (change)="selectionChanged(sprite)">
+    <select [(ngModel)]="sprite" required (change)="selectionChanged()">
       <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
     </select>
   </div>
