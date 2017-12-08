@@ -17,6 +17,7 @@ import { GameComponent, SpriteObject } from '../../game/game.component';
   styleUrls: ['./sprites.component.css']
 })
 export class SpritesComponent implements OnInit, OnChanges {
+
   @Input('sprites') public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
@@ -37,7 +38,16 @@ export class SpritesComponent implements OnInit, OnChanges {
   public keys = [];
   public sprite;
   public image;
+  public functionText;
+  public functionName;
+
   constructor() {}
+
+  static alert = function(event) {
+    event.target.yell = 'I am here';
+    alert('WORKED!!' + event.target.keys);
+  };
+
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -47,11 +57,16 @@ export class SpritesComponent implements OnInit, OnChanges {
         this.filename = this.images[4];
         this.spriteSelectionChanged();
         this.sprites.push({ name: 'New' });
+
+        this.sprites
+          .find(sprite => sprite.name === 'fred')
+          .on('pointerdown', SpritesComponent.alert);
       },
       1000,
       this
     );
   }
+
   change() {
     let key = this.key;
     if (this.key === 'New') {

@@ -11,7 +11,7 @@
 
   <button (click)="showEdit = !showEdit">Edit</button> -->
   <div style="display:inline-block;">
-    <button  *ngIf="sprite && sprite.name !== 'New'" (click)="delete()">Delete</button>
+    <button *ngIf="sprite && sprite.name !== 'New'" (click)="delete()">Delete</button>
     <select [(ngModel)]="sprite" required (change)="spriteSelectionChanged()">
       <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
     </select>
@@ -21,11 +21,25 @@
     <input *ngIf="key && key ==='New'" [type]="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
     <input *ngIf="key" [type]="keyType" [(ngModel)]="property" (change)="change()">
     <div *ngIf="sprite && sprite.name === 'New'">
-      <input [type]="string" [value]="name" (change)="change()">
+      <input type="string" [value]="name" (change)="change()">
       <button (click)="add()">Add</button>
     </div>
   </div>
-<!--
+
+<div *ngIf="sprite && sprite.name !== 'New'">
+  <p>{{sprite.name}} yells {{sprite.yell}}</p>
+  <!-- <textarea *ngIf="sprite && sprite.name !== 'New'" class="full" [(ngModel)]="sprite.yell"></textarea> -->
+</div>
+
+
+  <div *ngIf="key==='interactive'">
+    <p>Create a function</p>
+    <input type="string" [(ngModel)]="functionName">
+    <textarea class="full" [(ngModel)]="functionText"></textarea>
+    <button (click)="add()">Add</button>
+  </div>
+
+  <!--
   <mat-grid-list cols="4" rowHeight="300px">
     <mat-grid-tile [colspan]="1" [rowspan]="1">
         <input size="15" type=text [(ngModel)]="newField" (change)="changeNewField($event)" placeholder="Enter a lable">
