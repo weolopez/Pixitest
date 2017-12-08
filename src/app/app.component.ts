@@ -2,7 +2,12 @@ import { BehaviorComponent } from './components/behavior/behavior.component';
 import { FirebaseObjectObservable } from 'angularfire2/database-deprecated';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { GameComponent } from './game/game.component';
-import { AngularFireList, AngularFireDatabase, AngularFireObject, AngularFireAction } from 'angularfire2/database';
+import {
+  AngularFireList,
+  AngularFireDatabase,
+  AngularFireObject,
+  AngularFireAction
+} from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -62,11 +67,10 @@ export class AppComponent {
       this.db.object(this.prefix + 'sprites/' + sprite.name).set(sprite.keys);
     }
   }
-  add(sprite) {
-
-  }
+  add(sprite) {}
   delete(sprite) {
-
+    GameComponent.stage.removeChild(sprite);
+    this.sprites.splice(this.sprites.indexOf(sprite), 1);
+    this.db.object(this.prefix + 'sprites/' + sprite.name).remove();
   }
-
 }

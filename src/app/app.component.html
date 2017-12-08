@@ -13,7 +13,9 @@
       </mat-tab>
 
       <mat-tab label="Sprites">
-        <app-sprites [sprites]="sprites" [images]="images" (update)="update($event)">
+        <app-sprites [sprites]="sprites" [images]="images"
+        (delete)="delete($event)"
+        (update)="update($event)">
         </app-sprites>
       </mat-tab>
 

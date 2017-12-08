@@ -22,6 +22,7 @@ export class SpritesComponent implements OnInit, OnChanges {
   @Input('images') public images: Array<any> = [];
 
   @Output('update') public update = new EventEmitter<any>();
+  @Output('delete') public delete = new EventEmitter<any>();
   @ViewChild('textExample') textExample: ElementRef;
   @ViewChild('inputElement') inputElement: ElementRef;
 
@@ -94,8 +95,8 @@ export class SpritesComponent implements OnInit, OnChanges {
     sprite.filename = this.key;
     GameComponent.add(sprite);
   }
-  delete() {
-    alert('delete sprite');
+  deleteSprite() {
+    this.delete.emit(this.sprite);
   }
   spriteSelectionChanged() {
     if (this.sprite.name === 'New') {
