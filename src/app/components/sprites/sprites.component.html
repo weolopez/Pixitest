@@ -1,12 +1,6 @@
 <section>
-
-  <div style="display:inline-block;">
-    <select [(ngModel)]="sprite" required (change)="selectionChanged()">
-      <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
-    </select>
-  </div>
-
-  <div style="display:inline-block;">
+  <!-- <button (click)="showNew = !showNew">New</button>
+  <div *ngIf="showNew" style="display:inline-block;">
     <input type="text" placeholder="name" [(ngModel)]="name">
     <select [(ngModel)]="filename" required>
       <option *ngFor="let image of images" [ngValue]="image">{{image}}</option>
@@ -15,16 +9,26 @@
   </div>
 
 
+  <button (click)="showEdit = !showEdit">Edit</button> -->
+  <div style="display:inline-block;">
+    <button  *ngIf="sprite && sprite.name !== 'New'" (click)="delete()">Delete</button>
+    <select [(ngModel)]="sprite" required (change)="spriteSelectionChanged()">
+      <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
+    </select>
+    <select [(ngModel)]="key" required (change)="keySelectionChanged()">
+      <option *ngFor="let keyValue of keys" [ngValue]="keyValue">{{keyValue}}</option>
+    </select>
+    <input *ngIf="key && key ==='New'" [type]="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
+    <input *ngIf="key" [type]="keyType" [(ngModel)]="property" (change)="change()">
+    <div *ngIf="sprite && sprite.name === 'New'">
+      <input [type]="string" [value]="name" (change)="change()">
+      <button (click)="add()">Add</button>
+    </div>
+  </div>
+<!--
   <mat-grid-list cols="4" rowHeight="300px">
     <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <article style="margin-top: 8px;padding-top:0px;width:100%;height: 100%;">
-        <div *ngFor="let key of keys">
-          <div class="keyLable">
-            {{key}}
-          </div>
-        </div>
         <input size="15" type=text [(ngModel)]="newField" (change)="changeNewField($event)" placeholder="Enter a lable">
-      </article>
     </mat-grid-tile>
 
     <mat-grid-tile [colspan]="1" [rowspan]="1">
@@ -34,7 +38,6 @@
             <input #inputElement [name]="sprite.name" type="text" [value]="sprite[key]" (change)="change(inputElement, key)">
           </div>
         </div>
-        <input #newFieldElement [type]="getType()" [(ngModel)]="newValue" (change)="change(newFieldElement, newField)">
       </article>
     </mat-grid-tile>
 
@@ -44,5 +47,5 @@
           </textarea>
       </article>
     </mat-grid-tile>
-  </mat-grid-list>
+  </mat-grid-list> -->
 </section>

@@ -1,4 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter, OnChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+  OnChanges
+} from '@angular/core';
 import { GameComponent, SpriteObject } from '../../game/game.component';
 
 @Component({
@@ -12,10 +22,12 @@ export class SpritesComponent implements OnInit, OnChanges {
 
   @Output('update') public update = new EventEmitter<any>();
   @ViewChild('textExample') textExample: ElementRef;
+  @ViewChild('inputElement') inputElement: ElementRef;
 
   title = 'box';
-  public newValue = '';
-  public newField = '';
+  public key = '';
+  public keyType = 'string';
+  public newProperty = '';
   public game = GameComponent;
   public property: string;
   public name = '';
@@ -26,66 +38,64 @@ export class SpritesComponent implements OnInit, OnChanges {
   public sprite;
   public image;
   constructor() {}
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
       () => {
         this.sprite = this.sprites[4];
         this.filename = this.images[4];
-        this.selectionChanged();
+        this.spriteSelectionChanged();
+        this.sprites.push({ name: 'New' });
       },
       1000,
       this
     );
   }
-  changeNewField($event) {
-    this.newValue = this.sprite[this.newField];
-  }
-  change(e, property: string) {
-    if (!e.value) {
-      return;
+  change() {
+    let key = this.key;
+    if (this.key === 'New') {
+      key = this.newProperty;
     }
-    const propertyType = typeof this.sprite[property];
-    const valueType = typeof e.value ;
-    const fieldType = e.type ;
+    this.sprite[key] = this.property;
 
-    if (!this.sprite.keys) { this.sprite.keys = {}; }
-
-    if (propertyType === 'number') {
-      this.sprite[property] = Number(e.value);
-      this.sprite.keys[property] = Number(e.value);
-    } else if (typeof this.sprite[property] === 'string') {
-      this.sprite[property] = e.value;
-      this.sprite.keys[property] = e.value;
+    if (!isNaN(this.sprite[key])) {
+      this.sprite[key] = Number(this.sprite[key]);
+      this.sprite.keys[key] = Number(this.sprite[key]);
+    } else if (this.sprite[key] === 'true' || this.sprite[key] === 'false') {
+      this.sprite[key] = Boolean(this.sprite[key]);
+      this.sprite.keys[key] = Boolean(this.sprite[key]);
     } else {
-      if (valueType === 'number') {
-        this.sprite[property] = Number(e.value);
-        this.sprite.keys[property] = Number(e.value);
-      } else {
-        this.sprite[property] = e.value;
-        this.sprite.keys[property] = e.value;
-      }
+      this.sprite[key] = this.sprite[key];
+      this.sprite.keys[key] = this.sprite[key];
     }
+
     this.update.emit(this.sprite);
+    this.spriteSelectionChanged();
   }
   add(name, filename) {
     const sprite: SpriteObject = <SpriteObject>{};
-    sprite.name = name;
-    sprite.filename = filename;
+    sprite.name = this.name;
+    sprite.filename = this.key;
     GameComponent.add(sprite);
   }
-
-  selectionChanged() {
-    if (!this.sprite) { return; }
-    this.keys = Object.keys(this.sprite.keys);
+  delete() {
+    alert('delete sprite');
   }
-  getType() {
-    if (this.newField.length > 1) {
-      return typeof this.sprite[this.newField];
+  spriteSelectionChanged() {
+    if (this.sprite.name === 'New') {
+      this.keys = this.images;
     } else {
-      return 'string';
+      this.keys = Object.keys(this.sprite.keys);
+      this.keys.push('New');
+      this.key = this.keys[1];
+    }
+  }
+  keySelectionChanged() {
+    if (this.sprite.name === 'New') {
+      this.keyType = 'string';
+    } else {
+      this.keyType = typeof this.sprite[this.key];
     }
   }
 }
