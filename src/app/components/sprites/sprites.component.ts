@@ -10,6 +10,7 @@ import {
   OnChanges
 } from '@angular/core';
 import { GameComponent, SpriteObject } from '../../game/game.component';
+import { SpriteInteractions } from '../../functions/sprite/interactions';
 
 @Component({
   selector: 'app-sprites',
@@ -17,7 +18,6 @@ import { GameComponent, SpriteObject } from '../../game/game.component';
   styleUrls: ['./sprites.component.css']
 })
 export class SpritesComponent implements OnInit, OnChanges {
-
   @Input('sprites') public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
@@ -44,10 +44,9 @@ export class SpritesComponent implements OnInit, OnChanges {
 
   constructor() {}
 
-  static alert = function(event) {
-    event.target.yell = 'I am here';
-    alert('WORKED!!' + event.target.keys);
+  static pointerDown = function(event) {
   };
+  static pointerUp = function(event) {};
 
   ngOnInit(): void {}
 
@@ -59,9 +58,16 @@ export class SpritesComponent implements OnInit, OnChanges {
         this.spriteSelectionChanged();
         this.sprites.push({ name: 'New' });
 
-        this.sprites
-          .find(sprite => sprite.name === 'fred')
-          .on('pointerdown', SpritesComponent.alert);
+        const sf = SpriteInteractions;
+        const fred = GameComponent.sprites['fred'];
+        // fred.on('pointerdown', SpritesComponent.pointerDown);
+        // fred.on('pointerup', SpritesComponent.pointerUp);
+
+        fred
+          .on('pointerdown', sf.onDragStart)
+          .on('pointerup', sf.onDragEnd)
+          .on('pointerupoutside', sf.onDragEnd)
+          .on('pointermove', sf.onDragMove);
       },
       1000,
       this
