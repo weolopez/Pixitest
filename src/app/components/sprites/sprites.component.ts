@@ -18,6 +18,8 @@ import { SpriteInteractions } from '../../functions/sprite/interactions';
   styleUrls: ['./sprites.component.css']
 })
 export class SpritesComponent implements OnInit, OnChanges {
+  public static _selectedSprite = 'fred';
+
   @Input('sprites') public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
@@ -41,37 +43,50 @@ export class SpritesComponent implements OnInit, OnChanges {
   public image;
   public functionText;
   public functionName;
-
+  public selectedSprite;
   constructor() {}
-
-  static pointerDown = function(event) {
-  };
-  static pointerUp = function(event) {};
 
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
       () => {
-        this.sprite = this.sprites[4];
+        this.getSprite();
+        this.selectedSprite = this.sprites[4];
         this.filename = this.images[4];
         this.spriteSelectionChanged();
         this.sprites.push({ name: 'New' });
 
         const sf = SpriteInteractions;
-        const fred = GameComponent.sprites['fred'];
-        // fred.on('pointerdown', SpritesComponent.pointerDown);
-        // fred.on('pointerup', SpritesComponent.pointerUp);
 
-        fred
-          .on('pointerdown', sf.onDragStart)
-          .on('pointerup', sf.onDragEnd)
-          .on('pointerupoutside', sf.onDragEnd)
-          .on('pointermove', sf.onDragMove);
+        this.sprites.forEach(sprite => {
+          if (sprite.interactive === true) {
+            // sprite button mode will mean the hand cursor appears when you roll over the sprite with your mouse
+            sprite.buttonMode = true;
+
+            // center the sprite's anchor point
+            sprite.anchor.set(0.7);
+
+            // setup events for mouse + touch using
+            // the pointer events
+            sprite
+              .on('pointerdown', this.onDragStart)
+              .on('pointerup', this.onDragEnd)
+              .on('pointerupoutside', this.onDragEnd)
+              .on('pointermove', this.onDragMove);
+          }
+        });
       },
       1000,
       this
     );
+  }
+
+  getSprite() {
+    this.sprite = GameComponent.sprites[SpritesComponent._selectedSprite];
+    this.selectedSprite = this.sprite;
+    this.keySelectionChanged();
+    return this.sprite;
   }
 
   change() {
@@ -105,6 +120,7 @@ export class SpritesComponent implements OnInit, OnChanges {
     this.delete.emit(this.sprite);
   }
   spriteSelectionChanged() {
+    this.sprite = this.selectedSprite;
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -114,10 +130,46 @@ export class SpritesComponent implements OnInit, OnChanges {
     }
   }
   keySelectionChanged() {
+    if (!this.sprite) { return; }
     if (this.sprite.name === 'New') {
       this.keyType = 'string';
     } else {
       this.keyType = typeof this.sprite[this.key];
+      this.property = this.selectedSprite[this.key];
+    }
+  }
+  onDragStart(event) {
+    const sprite = event.currentTarget;
+    // store a reference to the data
+    // the reason for sprite is because of multitouch
+    // we want to track the movement of sprite particular touch
+    sprite.data = event.data;
+    sprite.alpha = 0.5;
+
+    // make it a bit bigger, so it's easier to grab
+    sprite.scale.set(3);
+    sprite.dragging = true;
+  }
+
+  onDragEnd(event) {
+    const sprite = event.currentTarget;
+    SpritesComponent._selectedSprite = sprite.name;
+    sprite.alpha = 1;
+    // make it a bit bigger, so it's easier to grab
+    sprite.scale.set(1);
+    sprite.dragging = false;
+    // set the interaction data to null
+    sprite.data = null;
+
+    this.sprite = sprite;
+  }
+
+  onDragMove(event) {
+    const sprite = event.currentTarget;
+    if (sprite.dragging) {
+      const newPosition = sprite.data.getLocalPosition(sprite.parent);
+      sprite.x = newPosition.x;
+      sprite.y = newPosition.y;
     }
   }
 }

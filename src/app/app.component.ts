@@ -29,15 +29,12 @@ export class AppComponent {
   constructor(private db: AngularFireDatabase) {
     this.spriteRef = db.object(this.prefix + 'sprites');
     this.spriteObservable = this.spriteRef.valueChanges();
-    this.spriteObservable.subscribe(changes => {
-      for (const key of Object.keys(changes)) {
-        if (!GameComponent.sprites[key]) {
-          GameComponent.add(changes[key]);
+    this.spriteObservable.subscribe(storedSprites => {
+      for (const sprite of Object.keys(storedSprites)) {
+        if (!GameComponent.sprites[sprite]) {
+          GameComponent.add(storedSprites[sprite]);
         }
       }
-      // const fred = GameComponent.sprites['fred'];
-      // fred.behaviors = ['moveVertically'];
-      // BehaviorComponent.sprites.push(fred);
     });
 
     setTimeout(() => {
