@@ -1,4 +1,5 @@
 <section>
+    {{property}}
   <div style="display:inline-block;">
     <button *ngIf="getSprite() && sprite.name !== 'New'" (click)="deleteSprite()">Delete</button>
     <select [(ngModel)]="selectedSprite" required (change)="spriteSelectionChanged()">
@@ -7,8 +8,10 @@
     <select [(ngModel)]="key" required (change)="keySelectionChanged()">
       <option *ngFor="let keyValue of keys" [ngValue]="keyValue">{{keyValue}}</option>
     </select>
-    <input *ngIf="key && key ==='New'" [type]="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
-    <input *ngIf="key" [type]="keyType" [(ngModel)]="property" (change)="change()">
+    <input *ngIf="key && key ==='New'" type="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
+<input *ngIf="key" [type]="keyType" #propertyInputField (change)="change(propertyInputField.value)">
+
+
     <div *ngIf="sprite && sprite.name === 'New'">
       <input type="string" [value]="name" (change)="change()">
       <button (click)="add()">Add</button>

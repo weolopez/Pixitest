@@ -30,10 +30,11 @@ export class SpritesComponent implements OnInit, OnChanges {
 
   title = 'box';
   public key = '';
-  public keyType = 'string';
+  public keyType = 'text';
   public newProperty = '';
   public game = GameComponent;
   public property: string;
+  public propertyValue: any;
   public name = '';
   public filename: string;
   public show = false;
@@ -44,9 +45,9 @@ export class SpritesComponent implements OnInit, OnChanges {
   public functionText;
   public functionName;
   public selectedSprite;
-  constructor() {}
+  constructor() { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
@@ -89,12 +90,13 @@ export class SpritesComponent implements OnInit, OnChanges {
     return this.sprite;
   }
 
-  change() {
+  change(changing) {
+    this.propertyValue = changing;
     let key = this.key;
     if (this.key === 'New') {
       key = this.newProperty;
     }
-    this.sprite[key] = this.property;
+    this.sprite[key] = this.propertyValue;
 
     if (!isNaN(this.sprite[key])) {
       this.sprite[key] = Number(this.sprite[key]);
@@ -121,6 +123,7 @@ export class SpritesComponent implements OnInit, OnChanges {
   }
   spriteSelectionChanged() {
     this.sprite = this.selectedSprite;
+    SpritesComponent._selectedSprite = this.selectedSprite.name;
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -132,9 +135,9 @@ export class SpritesComponent implements OnInit, OnChanges {
   keySelectionChanged() {
     if (!this.sprite) { return; }
     if (this.sprite.name === 'New') {
-      this.keyType = 'string';
+      this.keyType = 'text';
     } else {
-      this.keyType = typeof this.sprite[this.key];
+      this.keyType = (typeof this.sprite[this.key] === 'number') ? 'number' : 'text';
       this.property = this.selectedSprite[this.key];
     }
   }
