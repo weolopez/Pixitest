@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { GameComponent, SpriteObject } from '../../game/game.component';
 import { SpriteInteractions } from '../../functions/sprite/interactions';
+import { Events } from '../../services/event/event.service';
 
 @Component({
   selector: 'app-sprites',
@@ -44,7 +45,11 @@ export class SpritesComponent implements OnInit, OnChanges {
   public functionText;
   public functionName;
   public selectedSprite;
-  constructor() {}
+  constructor(private events: Events) {
+    events.subscribe('SPRITE_ADDED', sprite => {
+      this.sprites.push(sprite);
+    });
+  }
 
   ngOnInit(): void {}
 
