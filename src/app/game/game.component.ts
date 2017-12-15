@@ -60,10 +60,10 @@ export class GameComponent {
         this.init.emit(resources);
         GameComponent.ourMap = GameComponent.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
         GameComponent.stage.addChild(GameComponent.ourMap);
-        const sprite: SpriteObject = <SpriteObject>{};
-        sprite.name = 'dungeon';
-        sprite.filename = 'dungeon.png';
-        GameComponent.add(sprite);
+        // const sprite: SpriteObject = <SpriteObject>{};
+        // sprite.name = 'dungeon';
+        // sprite.filename = 'dungeon.png';
+        // GameComponent.add(sprite);
       });
 
     GameComponent.loader.onComplete.add(() => {
@@ -116,8 +116,8 @@ export class GameComponent {
     return collision;
   };
   static play = function() {
-    for (const key of Object.keys(GameComponent.sprites)) {
-      const sprite = GameComponent.sprites[key];
+    for (const key of Object.keys(GameComponent.ourMap.getObject('objects').children)) {
+      const sprite = GameComponent.ourMap.getObject('objects').children[key];
       if (sprite.N <= 0 || sprite.N === undefined) {
         continue;
       } else {
@@ -161,7 +161,7 @@ export class GameComponent {
     }
     GameComponent.sprites[sprite.name]['name'] = sprite.name;
     GameComponent.sprites[sprite.name]['keys'] = sprite;
-    GameComponent.ourMap.getObject('objects').addChild(GameComponent.sprites[sprite.name])
+    GameComponent.ourMap.getObject('objects').addChild(GameComponent.sprites[sprite.name]);
     // GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
     GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
 
