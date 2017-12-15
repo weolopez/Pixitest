@@ -9,7 +9,7 @@ import {
   EventEmitter,
   OnChanges
 } from '@angular/core';
-import { GameComponent, SpriteObject } from '../../game/game.component';
+import { SpriteObject } from '../../game/game.component';
 import { SpriteInteractions } from '../../functions/sprite/interactions';
 import { Events } from '../../services/event/event.service';
 
@@ -30,7 +30,6 @@ export class SpritesComponent implements OnInit, OnChanges {
   public key = '';
   public keyType = 'text';
   public newProperty = '';
-  public game = GameComponent;
   public property: string;
   public propertyValue: any;
   public name = '';
@@ -94,7 +93,7 @@ export class SpritesComponent implements OnInit, OnChanges {
     const sprite: SpriteObject = <SpriteObject>{};
     sprite.name = this.name;
     sprite.filename = this.key;
-    GameComponent.add(sprite);
+    // GameComponent.add(sprite);
   }
   deleteSprite() {
     this.events.publish('SPRITE_DELETE', this.sprite);

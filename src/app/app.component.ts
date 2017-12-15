@@ -1,7 +1,6 @@
 import { BehaviorComponent } from './components/behavior/behavior.component';
 
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
-import { GameComponent } from './game/game.component';
 import { FirebaseService } from './services/firebase/firebase.service';
 
 @Component({
