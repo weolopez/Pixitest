@@ -54,6 +54,36 @@
                 }],
          "tilecount":36,
          "tileheight":32,
+         "tileproperties":
+            {
+             "11":
+                {
+                 "name":"heart"
+                },
+             "4":
+                {
+                 "name":"skull"
+                },
+             "5":
+                {
+                 "name":"hamster"
+                }
+            },
+         "tilepropertytypes":
+            {
+             "11":
+                {
+                 "name":"string"
+                },
+             "4":
+                {
+                 "name":"string"
+                },
+             "5":
+                {
+                 "name":"string"
+                }
+            },
          "tiles":
             {
              "15":

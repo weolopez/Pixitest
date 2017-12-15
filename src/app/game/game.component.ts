@@ -30,6 +30,8 @@ export class GameComponent {
   static resources: PIXI.loaders.Resource;
   static world: TileUtilities;
   static app: PIXI.Application;
+  static ourMap: any;
+
   public static instance: GameComponent;
 
   @Input('sprites') public static sprites = {};
@@ -48,6 +50,7 @@ export class GameComponent {
     GameComponent.renderer = GameComponent.app.renderer;
     GameComponent.stage = GameComponent.app.stage;
     GameComponent.world = new TileUtilities();
+
     GameComponent.loader
       .add('gameResources', 'assets/images/treasureHunter.json')
       .add('assets/images/testmap.json')
@@ -55,8 +58,8 @@ export class GameComponent {
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);
-        const ourMap = GameComponent.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
-        GameComponent.stage.addChild(ourMap);
+        GameComponent.ourMap = GameComponent.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
+        GameComponent.stage.addChild(GameComponent.ourMap);
         const sprite: SpriteObject = <SpriteObject>{};
         sprite.name = 'dungeon';
         sprite.filename = 'dungeon.png';
@@ -158,7 +161,8 @@ export class GameComponent {
     }
     GameComponent.sprites[sprite.name]['name'] = sprite.name;
     GameComponent.sprites[sprite.name]['keys'] = sprite;
-    GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
+    GameComponent.ourMap.getObject('objects').addChild(GameComponent.sprites[sprite.name])
+    // GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
     GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
 
     GameComponent.instance.events.publish('SPRITE_ADDED', GameComponent.sprites[sprite.name]);
