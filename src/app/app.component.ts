@@ -29,8 +29,5 @@ export class AppComponent {
   }
   add(sprite) {}
   delete(sprite) {
-    // GameComponent.stage.removeChild(sprite);
-    // this.sprites.splice(this.sprites.indexOf(sprite), 1);
-    // this.db.object(this.prefix + 'sprites/' + sprite.name).remove();
   }
 }

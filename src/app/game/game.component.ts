@@ -28,6 +28,7 @@ export class GameComponent {
   static loader: PIXI.loaders.Loader;
   static treasure: PIXI.Sprite;
   static resources: PIXI.loaders.Resource;
+  static app: PIXI.Application;
   public static instance: GameComponent;
 
   @Input('sprites') public static sprites = {};
@@ -35,15 +36,16 @@ export class GameComponent {
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
   @ViewChild('gameElement') gameElement: ElementRef;
 
-  constructor(public ngZone: NgZone, public event: Events) {
+  constructor(public ngZone: NgZone, public events: Events) {
     if (GameComponent.instance) {
       return;
     }
     GameComponent.instance = this;
 
     GameComponent.loader = new PIXI.loaders.Loader();
-    GameComponent.stage = new PIXI.Container();
-    GameComponent.renderer = PIXI.autoDetectRenderer(512, 512);
+    GameComponent.app = new PIXI.Application(512, 512);
+    GameComponent.renderer = GameComponent.app.renderer;
+    GameComponent.stage = GameComponent.app.stage;
     GameComponent.loader
       .add('gameResources', 'assets/images/treasureHunter.json')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
@@ -53,24 +55,17 @@ export class GameComponent {
         sprite.name = 'dungeon';
         sprite.filename = 'dungeon.png';
         GameComponent.add(sprite);
-        // sprite = <SpriteObject>{};
-        // sprite.name = 'door';
-        // sprite.filename = 'door.png';
-        // sprite.x = 32;
-        // sprite.y = 32;
-        // GameComponent.add(sprite);
-        // sprite = <SpriteObject>{};
-        // sprite.name = 'blob1';
-        // sprite.filename = 'blob.png';
-        // sprite.x = 32;
-        // sprite.y = 32;
-        // sprite.vy = 3;
-        // GameComponent.add(sprite);
       });
 
     GameComponent.loader.onComplete.add(() => {
       this.gameElement.nativeElement.appendChild(GameComponent.renderer.view);
+      GameComponent.app.ticker.add(GameComponent.play);
       GameComponent.gameLoop();
+    });
+
+    events.subscribe('SPRITE_DELETE', sprite => {
+      GameComponent.stage.removeChild(sprite);
+      events.publish('SPRITE_DELETED', sprite);
     });
   }
 
@@ -111,18 +106,6 @@ export class GameComponent {
     // Return the `collision` value
     return collision;
   };
-  static moveSprite = function(sprite) {
-    // Check the blob's screen boundaries
-    const blobHitsWall = GameComponent.contain(sprite);
-
-    // If the blob hits the top or bottom of the stage, reverse
-    if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
-      GameComponent.sprites['blob1']['vy'] *= -1;
-    }
-    if (blobHitsWall === 'left' || blobHitsWall === 'right') {
-      sprite.vx *= -1;
-    }
-  };
   static play = function() {
     for (const key of Object.keys(GameComponent.sprites)) {
       const sprite = GameComponent.sprites[key];
@@ -153,7 +136,6 @@ export class GameComponent {
 
   static gameLoop = function() {
     requestAnimationFrame(GameComponent.gameLoop);
-    GameComponent.play();
     GameComponent.renderer.render(GameComponent.stage);
   };
 
@@ -173,6 +155,6 @@ export class GameComponent {
     GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
     GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
 
-    GameComponent.instance.event.publish('SPRITE_ADDED', GameComponent.sprites[sprite.name]);
+    GameComponent.instance.events.publish('SPRITE_ADDED', GameComponent.sprites[sprite.name]);
   };
 }
