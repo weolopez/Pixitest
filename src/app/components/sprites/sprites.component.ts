@@ -19,13 +19,10 @@ import { Events } from '../../services/event/event.service';
   styleUrls: ['./sprites.component.css']
 })
 export class SpritesComponent implements OnInit, OnChanges {
-  public static _selectedSprite = 'fred';
 
-  @Input('sprites') public sprites: Array<any> = [];
+  public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
-  @Output('update') public update = new EventEmitter<any>();
-  @Output('delete') public delete = new EventEmitter<any>();
   @ViewChild('textExample') textExample: ElementRef;
   @ViewChild('inputElement') inputElement: ElementRef;
 
@@ -45,14 +42,24 @@ export class SpritesComponent implements OnInit, OnChanges {
   public image;
   public functionText;
   public functionName;
+<<<<<<< HEAD
   public selectedSprite;
 <<<<<<< HEAD
   constructor() { }
 =======
+=======
+>>>>>>> feature/ngrx
   constructor(private events: Events) {
-    events.subscribe('SPRITE_ADDED', sprite => {
-      this.sprites.push(sprite);
+    events.subscribe('SPRITE_ADDED', sprite => { this.sprites.push(sprite); });
+    events.subscribe('SPRITE_DELETED', sprite => {
+      this.sprites = this.sprites.splice(
+          sprite.findIndex(s => s === sprite), 1);
     });
+    events.subscribe('SPRITE_SELECTED', sprite => {
+      this.sprite = sprite;
+      this.spriteSelectionChanged();
+    }
+    );
   }
 >>>>>>> 203a144c947f54ef6807430b09cdebac0e2e2097
 
@@ -61,43 +68,20 @@ export class SpritesComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
       () => {
-        this.getSprite();
-        this.selectedSprite = this.sprites[4];
         this.filename = this.images[4];
-        this.spriteSelectionChanged();
         this.sprites.push({ name: 'New' });
-
-        const sf = SpriteInteractions;
-
-        this.sprites.forEach(sprite => {
-          if (sprite.interactive === true) {
-            // sprite button mode will mean the hand cursor appears when you roll over the sprite with your mouse
-            sprite.buttonMode = true;
-
-            // center the sprite's anchor point
-            sprite.anchor.set(0.7);
-
-            // setup events for mouse + touch using
-            // the pointer events
-            sprite
-              .on('pointerdown', this.onDragStart)
-              .on('pointerup', this.onDragEnd)
-              .on('pointerupoutside', this.onDragEnd)
-              .on('pointermove', this.onDragMove);
-          }
-        });
       },
       1000,
       this
     );
   }
 
-  getSprite() {
-    this.sprite = GameComponent.sprites[SpritesComponent._selectedSprite];
-    this.selectedSprite = this.sprite;
-    this.keySelectionChanged();
-    return this.sprite;
-  }
+  // getSprite() {
+  //   this.sprite = GameComponent.sprites[SpritesComponent._selectedSprite];
+  //   this.selectedSprite = this.sprite;
+  //   this.keySelectionChanged();
+  //   return this.sprite;
+  // }
 
   change(changing) {
     this.propertyValue = changing;
@@ -109,7 +93,7 @@ export class SpritesComponent implements OnInit, OnChanges {
 
     if (!isNaN(this.sprite[key])) {
       this.sprite[key] = Number(this.sprite[key]);
-      this.sprite.keys[key] = Number(this.sprite[key]);
+      this.keys[key] = Number(this.sprite[key]);
     } else if (this.sprite[key] === 'true' || this.sprite[key] === 'false') {
       this.sprite[key] = Boolean(this.sprite[key]);
       this.sprite.keys[key] = Boolean(this.sprite[key]);
@@ -118,7 +102,7 @@ export class SpritesComponent implements OnInit, OnChanges {
       this.sprite.keys[key] = this.sprite[key];
     }
 
-    this.update.emit(this.sprite);
+    this.events.publish('SPRITE_UPDATED', this.sprite);
     this.spriteSelectionChanged();
   }
   add(name, filename) {
@@ -128,11 +112,14 @@ export class SpritesComponent implements OnInit, OnChanges {
     GameComponent.add(sprite);
   }
   deleteSprite() {
-    this.delete.emit(this.sprite);
+    this.events.publish('SPRITE_DELETE', this.sprite);
   }
   spriteSelectionChanged() {
+<<<<<<< HEAD
     this.sprite = this.selectedSprite;
     SpritesComponent._selectedSprite = this.selectedSprite.name;
+=======
+>>>>>>> feature/ngrx
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -146,6 +133,7 @@ export class SpritesComponent implements OnInit, OnChanges {
     if (this.sprite.name === 'New') {
       this.keyType = 'text';
     } else {
+<<<<<<< HEAD
       this.keyType = (typeof this.sprite[this.key] === 'number') ? 'number' : 'text';
       this.property = this.selectedSprite[this.key];
     }
@@ -182,6 +170,10 @@ export class SpritesComponent implements OnInit, OnChanges {
       const newPosition = sprite.data.getLocalPosition(sprite.parent);
       sprite.x = newPosition.x;
       sprite.y = newPosition.y;
+=======
+      this.keyType = typeof this.sprite[this.key];
+      this.property = this.sprite[this.key];
+>>>>>>> feature/ngrx
     }
   }
 }
