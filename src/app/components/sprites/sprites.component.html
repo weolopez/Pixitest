@@ -9,13 +9,7 @@
       <option *ngFor="let keyValue of keys" [ngValue]="keyValue">{{keyValue}}</option>
     </select>
     <input *ngIf="key && key ==='New'" type="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
-<<<<<<< HEAD
-<input *ngIf="key" [type]="keyType" #propertyInputField (change)="change(propertyInputField.value)">
-
-
-=======
     <input *ngIf="key" [type]="keyType" [(ngModel)]="property" (change)="change()">
->>>>>>> feature/ngrx
     <div *ngIf="sprite && sprite.name === 'New'">
       <input type="string" [value]="name" (change)="change()">
       <button (click)="add()">Add</button>

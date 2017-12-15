@@ -42,13 +42,6 @@ export class SpritesComponent implements OnInit, OnChanges {
   public image;
   public functionText;
   public functionName;
-<<<<<<< HEAD
-  public selectedSprite;
-<<<<<<< HEAD
-  constructor() { }
-=======
-=======
->>>>>>> feature/ngrx
   constructor(private events: Events) {
     events.subscribe('SPRITE_ADDED', sprite => { this.sprites.push(sprite); });
     events.subscribe('SPRITE_DELETED', sprite => {
@@ -61,8 +54,6 @@ export class SpritesComponent implements OnInit, OnChanges {
     }
     );
   }
->>>>>>> 203a144c947f54ef6807430b09cdebac0e2e2097
-
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -76,12 +67,6 @@ export class SpritesComponent implements OnInit, OnChanges {
     );
   }
 
-  // getSprite() {
-  //   this.sprite = GameComponent.sprites[SpritesComponent._selectedSprite];
-  //   this.selectedSprite = this.sprite;
-  //   this.keySelectionChanged();
-  //   return this.sprite;
-  // }
 
   change(changing) {
     this.propertyValue = changing;
@@ -115,11 +100,6 @@ export class SpritesComponent implements OnInit, OnChanges {
     this.events.publish('SPRITE_DELETE', this.sprite);
   }
   spriteSelectionChanged() {
-<<<<<<< HEAD
-    this.sprite = this.selectedSprite;
-    SpritesComponent._selectedSprite = this.selectedSprite.name;
-=======
->>>>>>> feature/ngrx
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -133,47 +113,8 @@ export class SpritesComponent implements OnInit, OnChanges {
     if (this.sprite.name === 'New') {
       this.keyType = 'text';
     } else {
-<<<<<<< HEAD
-      this.keyType = (typeof this.sprite[this.key] === 'number') ? 'number' : 'text';
-      this.property = this.selectedSprite[this.key];
-    }
-  }
-  onDragStart(event) {
-    const sprite = event.currentTarget;
-    // store a reference to the data
-    // the reason for sprite is because of multitouch
-    // we want to track the movement of sprite particular touch
-    sprite.data = event.data;
-    sprite.alpha = 0.5;
-
-    // make it a bit bigger, so it's easier to grab
-    sprite.scale.set(3);
-    sprite.dragging = true;
-  }
-
-  onDragEnd(event) {
-    const sprite = event.currentTarget;
-    SpritesComponent._selectedSprite = sprite.name;
-    sprite.alpha = 1;
-    // make it a bit bigger, so it's easier to grab
-    sprite.scale.set(1);
-    sprite.dragging = false;
-    // set the interaction data to null
-    sprite.data = null;
-
-    this.sprite = sprite;
-  }
-
-  onDragMove(event) {
-    const sprite = event.currentTarget;
-    if (sprite.dragging) {
-      const newPosition = sprite.data.getLocalPosition(sprite.parent);
-      sprite.x = newPosition.x;
-      sprite.y = newPosition.y;
-=======
       this.keyType = typeof this.sprite[this.key];
       this.property = this.sprite[this.key];
->>>>>>> feature/ngrx
     }
   }
 }
