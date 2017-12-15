@@ -13,9 +13,7 @@ import {
 @Injectable()
 export class FirebaseService {
 
-  public sprites: Array<any> = [];
   spriteRef: AngularFireObject<any>;
-
   spriteObservable: Observable<any>;
   prefix = '';
 
@@ -43,18 +41,25 @@ export class FirebaseService {
       }
     }, 5500);
 
-    event.subscribe('SPRITE_ADDED', sprite => {
-      if (!this.sprites.find(s => s.name === sprite.name)) {
-        this.sprites.push(sprite);
-      }
-      if (sprite.name) {
-        for (const key of Object.keys(sprite.keys)) {
-          sprite.keys[key] = sprite[key];
-        }
-        this.db.object(this.prefix + 'sprites/' + sprite.name).set(sprite.keys);
-      }
-    });
+    event.subscribe('SPRITE_ADDED', sprite => this.spriteAdded(sprite));
+    event.subscribe('SPRITE_UPDATED', sprite => this.spriteUpdated(sprite));
+    event.subscribe('SPRITE_DELETED', sprite => this.spriteUpdated(sprite));
 
+  }
+  spriteDeleted(sprite) {
+    this.db.object(this.prefix + 'sprites/' + sprite.name).remove();
+  }
+  spriteUpdated(sprite) {
+    if (sprite.name) {
+      for (const key of Object.keys(sprite.keys)) {
+        sprite.keys[key] = sprite[key];
+      }
+      this.db.object(this.prefix + 'sprites/' + sprite.name).set(sprite.keys);
+    }
+  }
+
+  spriteAdded(sprite) {
+    this.spriteUpdated(sprite);
   }
 
 }

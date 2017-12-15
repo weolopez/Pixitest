@@ -8,15 +8,12 @@
     <mat-tab-group class="item" [dynamicHeight]="true">
 
       <mat-tab label="Game">
-          <app-behavior  [sprites]="sprites" >
-          </app-behavior>
+          <app-behavior></app-behavior>
       </mat-tab>
 
       <mat-tab label="Sprites">
         <app-sprites [images]="images"
-        (delete)="delete($event)"
-        (update)="update($event)">
-        </app-sprites>
+        ></app-sprites>
       </mat-tab>
 
     </mat-tab-group>
