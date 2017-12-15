@@ -1,7 +1,7 @@
 import { Events } from './../services/event/event.service';
 import { Component, OnInit, NgZone, Input, SimpleChanges, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import * as PIXI from 'pixi.js';
-
+import TileUtilities from 'pixi-tile-utilities';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { Observable } from 'rxjs/Observable';
 import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -28,6 +28,7 @@ export class GameComponent {
   static loader: PIXI.loaders.Loader;
   static treasure: PIXI.Sprite;
   static resources: PIXI.loaders.Resource;
+  static world: TileUtilities;
   static app: PIXI.Application;
   public static instance: GameComponent;
 
@@ -42,15 +43,20 @@ export class GameComponent {
     }
     GameComponent.instance = this;
 
-    GameComponent.loader = new PIXI.loaders.Loader();
+    GameComponent.loader = PIXI.loader;
     GameComponent.app = new PIXI.Application(512, 512);
     GameComponent.renderer = GameComponent.app.renderer;
     GameComponent.stage = GameComponent.app.stage;
+    GameComponent.world = new TileUtilities();
     GameComponent.loader
       .add('gameResources', 'assets/images/treasureHunter.json')
+      .add('assets/images/testmap.json')
+      .add('assets/images/fantasy.png')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         GameComponent.resources = resources;
         this.init.emit(resources);
+        const ourMap = GameComponent.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
+        GameComponent.stage.addChild(ourMap);
         const sprite: SpriteObject = <SpriteObject>{};
         sprite.name = 'dungeon';
         sprite.filename = 'dungeon.png';
