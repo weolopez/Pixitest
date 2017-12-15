@@ -1,3 +1,4 @@
+import { Events } from './../services/event/event.service';
 import { Component, OnInit, NgZone, Input, SimpleChanges, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import * as PIXI from 'pixi.js';
 
@@ -34,7 +35,7 @@ export class GameComponent {
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
   @ViewChild('gameElement') gameElement: ElementRef;
 
-  constructor(public ngZone: NgZone) {
+  constructor(public ngZone: NgZone, public event: Events) {
     if (GameComponent.instance) {
       return;
     }
@@ -171,5 +172,7 @@ export class GameComponent {
     GameComponent.sprites[sprite.name]['keys'] = sprite;
     GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
     GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
+
+    GameComponent.instance.event.publish('SPRITE_ADDED', GameComponent.sprites[sprite.name]);
   };
 }
