@@ -12,7 +12,8 @@
       "node_modules/@types"
     ],
     "types": [
-      "pixi.js"
+      "pixi.js",
+      "EZGUI.js"
     ],
     "lib": [
       "es2017",

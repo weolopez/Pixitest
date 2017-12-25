@@ -10,6 +10,10 @@ import { SpritesComponent } from '../sprites/sprites.component';
 export class BehaviorComponent {
   public static events: any;
   constructor(public e: Events) {
+    window.addEventListener('keydown', event => {
+   //   e.publish('TEST', event)
+      e.publish(event.key, event);
+    });
     e.subscribe('SPRITE_ADDED', sprite => this.spriteAdded(sprite));
     BehaviorComponent.events = e;
   }

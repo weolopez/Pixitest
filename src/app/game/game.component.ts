@@ -23,8 +23,9 @@ export interface SpriteObject {
   styleUrls: ['./game.component.css']
 })
 export class GameComponent {
- stage: PIXI.Container;
- renderer: any;
+  
+  stage: PIXI.Container;
+  renderer: any;
 
   loader: PIXI.loaders.Loader;
   treasure: PIXI.Sprite;
@@ -60,12 +61,14 @@ export class GameComponent {
       });
 
     this.loader.onComplete.add(() => {
+      events.publish('GAME_LOADED', this);
       this.gameElement.nativeElement.appendChild(this.renderer.view);
       this.app.ticker.add(this.play, this);
-
       this.renderer.render(this.stage);
     });
-
+    events.subscribe('SPRITE_KEYS_UPDATED', sprite => {
+      Object.keys(sprite).forEach(key => sprite[key] = sprite.keys[key]);
+    });
     events.subscribe('SPRITE_DELETE', sprite => {
       this.stage.removeChild(sprite);
       events.publish('SPRITE_DELETED', sprite);
@@ -115,7 +118,8 @@ export class GameComponent {
     // Return the `collision` value
     return collision;
   };
-  play = function (game) {
+  play() {
+    const game = this;
     if (!game.ourMap) return;
     for (const key of Object.keys(game.ourMap.getObject('objects').children)) {
       const sprite = game.ourMap.getObject('objects').children[key];
