@@ -9,8 +9,8 @@ import {
   EventEmitter,
   OnChanges
 } from '@angular/core';
-import { GameComponent, SpriteObject } from '../../game/game.component';
-import { SpriteInteractions } from '../../functions/sprite/interactions';
+import { SpriteObject } from '../../game/game.component';
+import { Events } from '../../services/event/event.service';
 
 @Component({
   selector: 'app-sprites',
@@ -18,22 +18,18 @@ import { SpriteInteractions } from '../../functions/sprite/interactions';
   styleUrls: ['./sprites.component.css']
 })
 export class SpritesComponent implements OnInit, OnChanges {
-  public static _selectedSprite = 'fred';
 
-  @Input('sprites') public sprites: Array<any> = [];
+  public sprites: Array<any> = [];
   @Input('images') public images: Array<any> = [];
 
-  @Output('update') public update = new EventEmitter<any>();
-  @Output('delete') public delete = new EventEmitter<any>();
   @ViewChild('textExample') textExample: ElementRef;
   @ViewChild('inputElement') inputElement: ElementRef;
 
   title = 'box';
   public key = '';
-  public keyType = 'string';
+  public keyType = 'text';
   public newProperty = '';
-  public game = GameComponent;
-  public property: string;
+  public propertyValue: any;
   public name = '';
   public filename: string;
   public show = false;
@@ -43,84 +39,87 @@ export class SpritesComponent implements OnInit, OnChanges {
   public image;
   public functionText;
   public functionName;
-  public selectedSprite;
-  constructor() {}
+  constructor(private events: Events) {
+    events.subscribe('SPRITE_ADDED', sprite => { this.sprites.push(sprite); });
+    events.subscribe('SPRITE_DELETED', sprite => {
+      this.sprites = this.sprites.splice(
+          sprite.findIndex(s => s === sprite), 1);
+    });
 
-  ngOnInit(): void {}
+    events.subscribe('SPRITE_SELECTED', sprite => this.spriteSelectionChanged(sprite) );
+    events.subscribe('ArrowRight', () => this.updateSpriteAngle(1) );
+    events.subscribe('ArrowLeft', () => this.updateSpriteAngle(-1) );
+    events.subscribe('ArrowUp', () => this.updateSpriteAcceleration(1));
+    events.subscribe('ArrowUp', () => this.updateSpriteAcceleration(-1));
+  }
+  ngOnInit(): void { }
+
+  updateSpriteAcceleration(rate) {
+    this.sprite.vx += rate;
+    this.sprite.vy += rate;
+    this.sprite.N += rate+5;
+  }
+  updateSpriteAngle(turn) {
+    this.sprite.angle += turn;
+    // center the sprite's anchor point
+    this.sprite.anchor.set(0.5);
+    this.sprite.rotation = this.sprite.angle * Math.PI / 180;
+    this.sprite.vy = Math.sin(this.sprite.rotation); 
+    this.sprite.vx = Math.cos(this.sprite.rotation);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
       () => {
-        this.getSprite();
-        this.selectedSprite = this.sprites[4];
         this.filename = this.images[4];
-        this.spriteSelectionChanged();
         this.sprites.push({ name: 'New' });
-
-        const sf = SpriteInteractions;
-
-        this.sprites.forEach(sprite => {
-          if (sprite.interactive === true) {
-            // sprite button mode will mean the hand cursor appears when you roll over the sprite with your mouse
-            sprite.buttonMode = true;
-
-            // center the sprite's anchor point
-            sprite.anchor.set(0.7);
-
-            // setup events for mouse + touch using
-            // the pointer events
-            sprite
-              .on('pointerdown', this.onDragStart)
-              .on('pointerup', this.onDragEnd)
-              .on('pointerupoutside', this.onDragEnd)
-              .on('pointermove', this.onDragMove);
-          }
-        });
       },
       1000,
       this
     );
   }
 
-  getSprite() {
-    this.sprite = GameComponent.sprites[SpritesComponent._selectedSprite];
-    this.selectedSprite = this.sprite;
-    this.keySelectionChanged();
-    return this.sprite;
+  spriteUpdated() {
+    this.events.publish('SPRITE_KEYS_UPDATED', this.sprite);
   }
 
-  change() {
+  change(changing?) {
+    if (changing)
+      this.propertyValue = changing;
+
     let key = this.key;
     if (this.key === 'New') {
       key = this.newProperty;
     }
-    this.sprite[key] = this.property;
 
     if (!isNaN(this.sprite[key])) {
-      this.sprite[key] = Number(this.sprite[key]);
-      this.sprite.keys[key] = Number(this.sprite[key]);
+      this.sprite.keys[key] = Number(this.propertyValue);
     } else if (this.sprite[key] === 'true' || this.sprite[key] === 'false') {
-      this.sprite[key] = Boolean(this.sprite[key]);
-      this.sprite.keys[key] = Boolean(this.sprite[key]);
+      this.sprite.keys[key] = Boolean(this.propertyValue);
+    } else if (!isNaN(this.propertyValue)) {
+      this.sprite.keys[key] = Number(this.propertyValue);
+    } else if (this.propertyValue === 'true' || this.propertyValue === 'false') {
+      this.sprite.keys[key] = Boolean(this.propertyValue);
     } else {
-      this.sprite[key] = this.sprite[key];
-      this.sprite.keys[key] = this.sprite[key];
+      this.sprite.keys[key] = this.propertyValue;
     }
 
-    this.update.emit(this.sprite);
+    this.events.publish('SPRITE_KEYS_UPDATED', this.sprite);
     this.spriteSelectionChanged();
   }
+
   add(name, filename) {
     const sprite: SpriteObject = <SpriteObject>{};
     sprite.name = this.name;
     sprite.filename = this.key;
-    GameComponent.add(sprite);
+    // GameComponent.add(sprite);
   }
   deleteSprite() {
-    this.delete.emit(this.sprite);
+    this.events.publish('SPRITE_DELETE', this.sprite);
   }
-  spriteSelectionChanged() {
-    this.sprite = this.selectedSprite;
+  spriteSelectionChanged(sprite?) {
+    if (sprite) this.sprite = sprite;
+
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -132,44 +131,10 @@ export class SpritesComponent implements OnInit, OnChanges {
   keySelectionChanged() {
     if (!this.sprite) { return; }
     if (this.sprite.name === 'New') {
-      this.keyType = 'string';
+      this.keyType = 'text';
     } else {
       this.keyType = typeof this.sprite[this.key];
-      this.property = this.selectedSprite[this.key];
-    }
-  }
-  onDragStart(event) {
-    const sprite = event.currentTarget;
-    // store a reference to the data
-    // the reason for sprite is because of multitouch
-    // we want to track the movement of sprite particular touch
-    sprite.data = event.data;
-    sprite.alpha = 0.5;
-
-    // make it a bit bigger, so it's easier to grab
-    sprite.scale.set(3);
-    sprite.dragging = true;
-  }
-
-  onDragEnd(event) {
-    const sprite = event.currentTarget;
-    SpritesComponent._selectedSprite = sprite.name;
-    sprite.alpha = 1;
-    // make it a bit bigger, so it's easier to grab
-    sprite.scale.set(1);
-    sprite.dragging = false;
-    // set the interaction data to null
-    sprite.data = null;
-
-    this.sprite = sprite;
-  }
-
-  onDragMove(event) {
-    const sprite = event.currentTarget;
-    if (sprite.dragging) {
-      const newPosition = sprite.data.getLocalPosition(sprite.parent);
-      sprite.x = newPosition.x;
-      sprite.y = newPosition.y;
+      this.propertyValue = this.sprite[this.key];
     }
   }
 }

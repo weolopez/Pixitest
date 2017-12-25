@@ -1,14 +1,15 @@
 <section>
+    {{property}}
   <div style="display:inline-block;">
-    <button *ngIf="getSprite() && sprite.name !== 'New'" (click)="deleteSprite()">Delete</button>
-    <select [(ngModel)]="selectedSprite" required (change)="spriteSelectionChanged()">
+    <button *ngIf="sprite && sprite.name !== 'New'" (click)="deleteSprite()">Delete</button>
+    <select [(ngModel)]="sprite" required (change)="spriteSelectionChanged()">
       <option *ngFor="let selectValue of sprites" [ngValue]="selectValue">{{selectValue.name}}</option>
     </select>
     <select [(ngModel)]="key" required (change)="keySelectionChanged()">
       <option *ngFor="let keyValue of keys" [ngValue]="keyValue">{{keyValue}}</option>
     </select>
-    <input *ngIf="key && key ==='New'" [type]="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
-    <input *ngIf="key" [type]="keyType" [(ngModel)]="property" (change)="change()">
+    <input *ngIf="key && key ==='New'" type="text" [(ngModel)]="newProperty" placeholder="Enter New Property">
+    <input *ngIf="key" [type]="keyType" [(ngModel)]="propertyValue" (change)="change()">
     <div *ngIf="sprite && sprite.name === 'New'">
       <input type="string" [value]="name" (change)="change()">
       <button (click)="add()">Add</button>
@@ -16,7 +17,7 @@
   </div>
 
 <div *ngIf="sprite && sprite.name !== 'New'">
-  <p>{{sprite.name}} yells {{sprite.yell}}</p>
+  <p>{{sprite.name}} yells radians {{sprite.rotation}} angle: {{sprite.angle}} var x = {{sprite.vx}} var y = {{sprite.vy}}</p>
 </div>
 
 

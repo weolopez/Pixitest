@@ -1,3 +1,5 @@
+import { Events } from './services/event/event.service';
+import { FirebaseService } from './services/firebase/firebase.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -32,7 +34,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule
   ],
-  providers: [],
+  providers: [Events, FirebaseService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
