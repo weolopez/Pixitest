@@ -1,5 +1,6 @@
 import { Events } from "../services/event/event.service";
 import * as PIXI from 'pixi.js';
+import { PixiTextInput } from "./input";
 
 export interface typeValues {
     id?: string;
@@ -19,13 +20,33 @@ export class Component {
     iconButton: typeValues;
     toolbar: typeValues;
     list: typeValues;
+    item: typeValues;
+    inputItem: typeValues;
     gui: PIXI.Graphics;
+    style = {
+        align: 'center',
+        fontFamily: 'Arial',
+        fontSize: 36,
+        fontStyle: 'italic',
+        fontWeight: 'bold',
+        fill: ['#ffffff', '#00ff99'], // gradient
+        stroke: '#4a1850',
+        strokeThickness: 5,
+        dropShadow: true,
+        dropShadowColor: '#000000',
+        dropShadowBlur: 4,
+        dropShadowAngle: Math.PI / 6,
+        dropShadowDistance: 6,
+        wordWrapWidth: 440
+    }
     constructor(public stage) {
         this.addType('window', 500, 500, 0x051C38);
         this.addType('button', 90, 40, 0x4B688B, 'button');
         this.addType('iconButton', 40, 40, 0x4B688B);
         this.addType('toolbar', 480, 50, 0x051C38);
         this.addType('list', 480, 380, 0x4B688B);
+        this.addType('item', 470, 50, 0x4B688B, 'key');
+        this.addType('inputItem', 470, 50, 0x4B688B, 'key');
     }
 
     addType(type, width, height, color, text?) {
@@ -43,7 +64,7 @@ export class Component {
     getGraphics(type: typeValues): PIXI.Graphics {
         const component = this[type.type];
 
-        if (!this[type.type]) alert('Type Missing: '+ type.type)
+        if (!this[type.type]) alert('Type Missing: ' + type.type)
 
         for (let key of Object.keys(type)) {
             component[key] = type[key];
@@ -56,35 +77,19 @@ export class Component {
         g2.lineStyle(2, component.color, 1);
         g2.beginFill(component.color, 0.8);
         g2.drawRoundedRect(0, 0, component.width, component.height, 15);
-        g2.position.set(component.x,component.y);
+        g2.position.set(component.x, component.y);
         g2.endFill();
         if (component.text) {
-            const style = new PIXI.TextStyle({
-                align: 'center',
-                fontFamily: 'Arial',
-                fontSize: 36,
-                fontStyle: 'italic',
-                fontWeight: 'bold',
-                fill: ['#ffffff', '#00ff99'], // gradient
-                stroke: '#4a1850',
-                strokeThickness: 5,
-                dropShadow: true,
-                dropShadowColor: '#000000',
-                dropShadowBlur: 4,
-                dropShadowAngle: Math.PI / 6,
-                dropShadowDistance: 6,
-                wordWrap: true,
-                wordWrapWidth: 440
-            });
+            const style = new PIXI.TextStyle(this.style);
             var basicText = new PIXI.Text(component.text, style);
             basicText.position.set(0, 0);
-            
+
             g2.addChild(basicText);
         }
         if (component.children) component.children.forEach(element => {
             g2.addChild(this.getGraphics(element));
-        }); 
-        
+        });
+
         return g2;
     }
     getType(type: typeValues, overRides?: any): PIXI.Graphics {
@@ -103,6 +108,8 @@ export class Component {
         let component = <PIXI.Container>this.gui.getChildByName(id);
         if (component['type'] === 'toolbar') {
             this.addToIconBar(component, newSprite);
+        } else if (component['type'] === 'list') {
+            this.addToProperyList(component, newSprite);
         }
     }
     addToIconBar(component: PIXI.Container, sprite) {
@@ -113,7 +120,26 @@ export class Component {
         let newSprite = component.addChild(button);
         let count = component.children.length;
 
-        newSprite.position.set((newSprite.x + 45) * count, newSprite.y+5);
-
+        newSprite.position.set((newSprite.x + 45) * count, newSprite.y + 5);
+    }
+    addToProperyList(component: PIXI.Container, keys) {
+        let count = 0;
+        for (let key of Object.keys(keys)) {
+            let item = this.addToInputItem(key, keys[key])
+            component.addChild(item);
+            count += 1;
+            item.position.set(item.x + 5, (item.y + 55) * count);
+        }
+    }
+    addToInputItem(key, value): PIXI.Container {
+        let item = Object.assign({}, this.inputItem);
+        item.text = key + ' : ';
+        let newItem = this.getGraphics(item);
+        let textWidth = newItem.getChildAt(0).width;
+        let input = new PixiTextInput(value, this.style, false, false);
+        input.width = item.width - textWidth - 20;
+        let newGraphic = newItem.addChild(input);
+        newGraphic.position.set(textWidth + 5, newItem.y + 2);
+        return newItem;
     }
 }

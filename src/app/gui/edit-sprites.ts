@@ -73,6 +73,6 @@ export class EditSprites {
   }
 
   spriteSelectionChanged(sprite) {
-    
+    this.component.addTo('propery-list', sprite.keys);
   }
 }
