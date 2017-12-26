@@ -40,7 +40,11 @@ export class GameComponent {
   constructor(public ngZone: NgZone, public events: Events) {
 
     this.loader = PIXI.loader;
-    this.app = new PIXI.Application(512, 512);
+    this.app = new PIXI.Application(window.innerWidth, window.innerHeight, {
+    // backgroundColor: 0xcccccc
+    transparent: true
+  });
+    
     this.renderer = this.app.renderer;
     this.stage = this.app.stage;
     this.world = new TileUtilities();

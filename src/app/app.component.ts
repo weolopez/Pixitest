@@ -4,6 +4,7 @@ import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { FirebaseService } from './services/firebase/firebase.service';
 import { Events } from './services/event/event.service';
 import { Ezgui } from './pixi/ezgui';
+import { EditSprites } from './gui/edit-sprites';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ export class AppComponent {
   public images: Array<any> = [];
   constructor(private firebaseService: FirebaseService, private events: Events  ) {
     const ezgui = new Ezgui(events);
+    const edit = new EditSprites(events);
   }
   init(resource) {
     for (const element of Object.keys(resource['gameResources'].data.frames)) {
