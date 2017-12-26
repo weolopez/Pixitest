@@ -15,6 +15,7 @@ export interface SpriteObject {
   vx?: number;
   y?: number;
   vy?: number;
+  interactive?: boolean;
 }
 
 @Component({
@@ -37,12 +38,12 @@ export class GameComponent {
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
   @ViewChild('gameElement') gameElement: ElementRef;
 
-  constructor(public ngZone: NgZone, public events: Events) {
+  constructor(public events: Events) {
 
     this.loader = PIXI.loader;
-    this.app = new PIXI.Application(window.innerWidth, window.innerHeight, {
-    // backgroundColor: 0xcccccc
-    transparent: true
+    this.app = new PIXI.Application(window.innerWidth - 10, window.innerHeight - 10, {
+    backgroundColor: 0x000000,
+      transparent: false
   });
     
     this.renderer = this.app.renderer;
@@ -66,7 +67,7 @@ export class GameComponent {
 
     this.loader.onComplete.add(() => {
       events.publish('GAME_LOADED', this);
-      this.gameElement.nativeElement.appendChild(this.renderer.view);
+      document.body.appendChild(this.renderer.view);
       this.app.ticker.add(this.play, this);
       this.renderer.render(this.stage);
     });

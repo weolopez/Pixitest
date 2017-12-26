@@ -18,12 +18,14 @@ export class Component {
     button: typeValues;
     iconButton: typeValues;
     toolbar: typeValues;
+    list: typeValues;
     gui: PIXI.Graphics;
     constructor(public stage) {
-        this.addType('window', 300, 300, 0x051C38);
+        this.addType('window', 500, 500, 0x051C38);
         this.addType('button', 90, 40, 0x4B688B, 'button');
         this.addType('iconButton', 40, 40, 0x4B688B);
         this.addType('toolbar', 480, 50, 0x051C38);
+        this.addType('list', 480, 380, 0x4B688B);
     }
 
     addType(type, width, height, color, text?) {
@@ -111,7 +113,7 @@ export class Component {
         let newSprite = component.addChild(button);
         let count = component.children.length;
 
-        newSprite.position.set((newSprite.x + 45) * count, newSprite.y);
+        newSprite.position.set((newSprite.x + 45) * count, newSprite.y+5);
 
     }
 }

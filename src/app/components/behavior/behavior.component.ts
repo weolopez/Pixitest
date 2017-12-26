@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Events } from '../../services/event/event.service';
 import { SpritesComponent } from '../sprites/sprites.component';
+import { SpriteObject } from '../../game/game.component';
 
 @Component({
   selector: 'app-behavior',
@@ -11,7 +12,7 @@ export class BehaviorComponent {
   public static events: any;
   constructor(public e: Events) {
     window.addEventListener('keydown', event => {
-   //   e.publish('TEST', event)
+      //   e.publish('TEST', event)
       e.publish(event.key, event);
     });
     e.subscribe('SPRITE_ADDED', sprite => this.spriteAdded(sprite));
@@ -20,6 +21,12 @@ export class BehaviorComponent {
 
   spriteAdded(sprite) {
     if (sprite.interactive !== true) {
+      return;
+    }
+
+
+    if (sprite.cloneable) {
+      sprite.on('pointerup', this.onNew);
       return;
     }
     // sprite button mode will mean the hand cursor appears when you roll over the sprite with your mouse
@@ -39,6 +46,7 @@ export class BehaviorComponent {
 
   onDragStart(event) {
     const sprite = event.currentTarget;
+
     // store a reference to the data
     // the reason for sprite is because of multitouch
     // we want to track the movement of sprite particular touch
@@ -69,5 +77,15 @@ export class BehaviorComponent {
       sprite.y = newPosition.y;
     }
   }
+  onNew(event) {
+    const filename = event.currentTarget;
 
+    const sprite: SpriteObject = <SpriteObject>{};
+    sprite.filename = event.currentTarget.filename;
+    sprite.name = 'NEW_NAME';
+    sprite.x = 50;
+    sprite.y = 50;    
+    sprite.interactive = true;
+    BehaviorComponent.events.publish('SPRITE_ADD', sprite);
+  }
 }
