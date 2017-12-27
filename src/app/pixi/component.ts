@@ -2,6 +2,12 @@ import { Events } from "../services/event/event.service";
 import * as PIXI from 'pixi.js';
 import { PixiTextInput } from "./input";
 
+export interface Panel extends PIXI.Container {
+    panels?: Array<PIXI.Container>;
+    panel: PIXI.Container;
+    currentPanel: number;
+}
+
 export interface typeValues {
     id?: string;
     type: string;
@@ -24,7 +30,7 @@ export class Component {
     inputItem: typeValues;
     gui: PIXI.Graphics;
     style = {
-        align: 'center',
+        align: 'right',
         fontFamily: 'Arial',
         fontSize: 36,
         fontStyle: 'italic',
@@ -39,7 +45,7 @@ export class Component {
         dropShadowDistance: 6,
         wordWrapWidth: 440
     }
-    constructor(public stage) {
+    constructor(public stage, public events?: Events) {
         this.addType('window', 500, 500, 0x051C38);
         this.addType('button', 90, 40, 0x4B688B, 'button');
         this.addType('iconButton', 40, 40, 0x4B688B);
@@ -109,7 +115,7 @@ export class Component {
         if (component['type'] === 'toolbar') {
             this.addToIconBar(component, newSprite);
         } else if (component['type'] === 'list') {
-            this.addToProperyList(component, newSprite);
+            this.addToProperyList(<Panel>component, newSprite);
         }
     }
     addToIconBar(component: PIXI.Container, sprite) {
@@ -122,24 +128,82 @@ export class Component {
 
         newSprite.position.set((newSprite.x + 45) * count, newSprite.y + 5);
     }
-    addToProperyList(component: PIXI.Container, keys) {
+    addToProperyList(component: Panel, keys) {
         let count = 0;
+        let panels = [];
+        let panel = this.copyContainer(component);
         for (let key of Object.keys(keys)) {
-            let item = this.addToInputItem(key, keys[key])
-            component.addChild(item);
             count += 1;
-            item.position.set(item.x + 5, (item.y + 55) * count);
+            if (count % 7 == 0) {
+                count = 1;
+                component.addChild(panel);
+                panels.push(panel);
+                panel = this.copyContainer(component);
+            }
+            let item = this.addToInputItem(key, keys[key])
+            panel.addChild(item);
+            item.position.set(item.x, (item.y + 55) * count);
         }
+        panels.push(panel);
+        component.addChild(panel);
+        component.panels = panels;
+        let xButton = this.addToButton(component, 'X');
+        xButton.position.set(component.x + component.width - 55, component.y - 100);
+        xButton.interactive = true;
+        xButton.on('pointerup', () => {
+            this.events.publish('SPRITE_NAME_DELETE', keys.name);
+        });
+        if (component.panels.length > 0) {
+            let lButton = this.addToButton(component, '<');
+            let rButton = this.addToButton(component, '>');
+            rButton.position.set(xButton.x - 55, xButton.y);
+            lButton.position.set(rButton.x - 55, rButton.y);
+            rButton.interactive = true;
+            rButton.on('pointerup', () => {
+                if (component.panels.length-1 > component.currentPanel  ) {
+                    component.panels[component.currentPanel].visible = false;
+                    component.currentPanel++;
+                    component.panels[component.currentPanel].visible = true;
+                }
+            });
+            lButton.interactive = true;
+            lButton.on('pointerup', () => {
+                if (0 < component.currentPanel) {
+                    component.panels[component.currentPanel].visible = false;
+                    component.currentPanel--;
+                    component.panels[component.currentPanel].visible = true;
+                }
+            });
+        }
+        component.currentPanel = 0
+        component.panels[component.currentPanel].visible = true;
+        
+    }
+    addToButton(component, char) {
+        let lButtonType = Object.assign({}, this.iconButton);
+        lButtonType.text = char;
+        let lButton = this.getGraphics(lButtonType);
+        component.addChild(lButton);
+        return lButton;
     }
     addToInputItem(key, value): PIXI.Container {
         let item = Object.assign({}, this.inputItem);
         item.text = key + ' : ';
         let newItem = this.getGraphics(item);
-        let textWidth = newItem.getChildAt(0).width;
+        let textWidth = (<PIXI.Graphics>newItem.getChildAt(0)).width;
         let input = new PixiTextInput(value, this.style, false, false);
         input.width = item.width - textWidth - 20;
         let newGraphic = newItem.addChild(input);
-        newGraphic.position.set(textWidth + 5, newItem.y + 2);
+        newGraphic.position.set(textWidth, newItem.y + 2);
         return newItem;
+    }
+    copyContainer(c1): PIXI.Container {
+        const returnContainer = new PIXI.Container();
+        returnContainer.x = c1.x;
+        returnContainer.x = c1.x;
+        returnContainer.width = c1.width;
+        returnContainer.height = c1.height;
+        returnContainer.visible = false;
+        return returnContainer
     }
 }

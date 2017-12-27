@@ -42,7 +42,7 @@ export class EditSprites {
   constructor(private events: Events) {
     events.subscribe('GAME_LOADED', (game: GameComponent) => {
       let resource = game.resources;
-      this.component = new Component(game.stage);
+      this.component = new Component(game.stage, events);
       let node = this.component.add(this.gui);
       this.component.gui.visible = false;
       let sprite = <PIXI.Container>this.component.gui.getChildByName('sprite-bar');
