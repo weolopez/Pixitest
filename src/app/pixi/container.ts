@@ -2,6 +2,10 @@ import * as PIXI from 'pixi.js';
 import { Events } from '../services/event/event.service';
 import { DefaultTheme } from './default-theme';
 
+export interface ContainerChange {
+    type: string;
+    value: object;
+}
 export interface IContainer {
     color?: number;
     width?: number;
@@ -11,9 +15,10 @@ export interface IContainer {
     corner?: number;
     margin?: number;
     type?: any;
+    onChange?: ContainerChange;
 }
 export type ModifyContainer = (c) => Container;
-export class Container extends PIXI.Graphics {
+export class Container extends PIXI.Graphics implements IContainer {
     public id?: string;
     public type: any;
     public color: number;

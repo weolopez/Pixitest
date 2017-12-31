@@ -1,5 +1,7 @@
 
 import * as PIXI from 'pixi.js';
+import { Container, ContainerChange } from './container';
+import { Events } from '../services/event/event.service';
 
 /**
  * Text input field for pixi.js.
@@ -23,7 +25,7 @@ import * as PIXI from 'pixi.js';
  * @param {Boolean} [password] Indicate if field should be shown as a password field
  * @param {Boolean} [useNativeTextInput] Indicate if the textfield should create a native fallback for mobile
  */
-export class PixiTextInput extends PIXI.Container {
+export class PixiTextInput extends Container {
     _text: any;
     _placeholder: any;
     _nativeTextInput: any;
@@ -64,9 +66,10 @@ export class PixiTextInput extends PIXI.Container {
     handleCopyReference: any;
     handleCutReference: any;
     handlePasteReference: any;
-
+    onChange: ContainerChange;
     constructor(text, style, password, useNativeTextInput) {
         super();
+
         PIXI.Container.call(this);
 
         if (!text)
@@ -522,7 +525,11 @@ export class PixiTextInput extends PIXI.Container {
         document.removeEventListener("keyup", this.keyEventClosure);
         document.removeEventListener("mousedown", this.documentMouseDownClosure);
         window.removeEventListener("blur", this.windowBlurClosure);
-
+        if (this.onChange) {
+            this.onChange.value['value'] = this.text; 
+            Events.getInstance().publish(this.onChange.type, this.onChange.value);
+        }
+         
         this.hideCaret();
     }
 

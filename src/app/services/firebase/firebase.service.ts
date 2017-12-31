@@ -27,7 +27,7 @@ export class FirebaseService {
       }
     });
 
-    events.subscribe('SPRITE_KEYS_UPDATED', sprite => this.db.object(this.prefix + 'sprites/' + sprite.name).set(sprite.keys));
+    events.subscribe('SPRITE_KEYS_UPDATED', sprite => this.db.object(this.prefix + 'sprites/' + sprite.keys.name).set(sprite.keys));
 
     setTimeout(() => {
       // for (const key of Object.keys(GameComponent.sprites)) {

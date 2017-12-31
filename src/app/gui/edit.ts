@@ -4,12 +4,12 @@ import { GameComponent } from "../game/game.component";
 import { WindowPIXI, IWindow } from "../pixi/window";
 import { RowContainer, RowItem, IRowContainer } from "../pixi/row-container";
 import { IButton, Button } from "../pixi/button";
-import { Container } from "../pixi/container";
+import { Container, ContainerChange } from "../pixi/container";
 import { ListPanel } from "../pixi/list-panel";
 import { PixiTextInput } from "../pixi/input";
 import { DefaultTheme } from "../pixi/default-theme";
 
-export interface ISprites extends PIXI.Sprite {
+export interface ISprite extends PIXI.Sprite {
     keys: Array<any>;
 }
 
@@ -30,7 +30,7 @@ export class Edit {
         },
         components: {
             editPanel: {
-                type: ListPanel,
+                type: ListPanel
             },
             sidePanel: {
                 type: WindowPIXI,
@@ -38,7 +38,7 @@ export class Edit {
                 height: 445,
                 color: 0x748BA7,
                 opacity: 1,
-                y: 50,
+                y: 45,
                 x: -5,
                 corner: 0,
                 visible: false,
@@ -67,6 +67,8 @@ export class Edit {
     }
     public win: Container;
     private sprites = <Array<PIXI.Sprite>>[];
+    private selectedSpriteName: string;
+    private selectedSprite: ISprite;
     constructor(private events: Events) {
         events.subscribe('GAME_LOADED', (game: GameComponent) => {
             this.win = Container.init(this.windowPIXI);
@@ -76,62 +78,51 @@ export class Edit {
             Container.events.subscribe('WINDOW_CLOSE', button => this.win.visible = false);
             Container.events.subscribe('MENU_OPEN', button => this.openMenu(this.win.components.sidePanel));
             game.stage.addChild(this.win);
-
-
         });
-        Container.events.subscribe('test', e => {
-            this.editSpriteByName(e.children[0].text);
+        Container.events.subscribe('SELECTD_SPRITE', e => {
+            this.selectedSpriteName = e.children[0].text;
+            this.editSpriteByName(this.selectedSpriteName);
             this.win.components.sidePanel.visible = false;
         }
         );
         events.subscribe('o', game => {
             this.win.visible = !this.win.visible;
-            if (this.win.visible) this.editSpriteByName('blob');
+        });
+        Container.events.subscribe('SPRITE_KEY', obj => {
+            this.selectedSprite.keys[obj.key] = obj.value;
+            if (this.selectedSprite.keys)
+                this.events.publish('SPRITE_KEYS_UPDATED', this.selectedSprite);
         });
     }
 
     editSpriteByName(spriteName) {
-        let sprite = <ISprites>this.sprites.find(s => s.name === spriteName);
+        this.selectedSprite = <ISprite>this.sprites.find(s => s.name === spriteName);
         let editPanel = <ListPanel>this.win.components.editPanel;
-        editPanel.addObjectProperties(sprite.keys, Edit.createKeyContainer);
+        editPanel.addObjectProperties(this.selectedSprite.keys, Edit.createKeyContainer);
     }
     openMenu(sidePanel) {
         sidePanel.visible = !sidePanel.visible;
         if (!sidePanel.visible) return;
         sidePanel.panel = Container.init({});
         this.sprites.forEach(sprite => Edit.addSprite(sidePanel, sprite));
-
-    }
-    static editSprite(editPanel, sprite) {
-
     }
     static addSprite(sidePanel, sprite) {
-        // if (!sidePanel.panel)
-        //     sidePanel.panel = Container.init({});
-        const btn = Button.init({ text: sprite.name, event: 'test', width: 220 });
+        const btn = Button.init({ text: sprite.name, event: 'SELECTD_SPRITE', width: 220 });
         sidePanel.panel.addChild(btn);
         btn.y += 55 * sidePanel.panel.children.length;
         sidePanel.addChild(sidePanel.panel);
     }
-
-
-    static addToInputItem(key, value): PIXI.Container {
-        let newItem = Container.init({ text: 'textWidth' });
-        // let item = Object.assign({}, this.inputItem);
-        // item.text = key + ' : ';
-        // let newItem = this.getGraphics(item);
-        // let textWidth = (<PIXI.Graphics>newItem.getChildAt(0)).width;
-        // let input = new PixiTextInput(value, this.style, false, false);
-        // input.width = item.width - textWidth - 20;
-        // let newGraphic = newItem.addChild(input);
-        // newGraphic.position.set(textWidth, newItem.y + 2);
-        return newItem;
-    }
-
     static createKeyContainer(key, value): RowContainer {
         let item = RowContainer.init({
             left: [{ text: key }],
-            right: [{input: value}]
+            right: [{
+                input: {
+                    value: value, onChange: <ContainerChange>{
+                        type: 'SPRITE_KEY',
+                        value: { key: key, value: value }
+                    }
+                }
+            }]
         });
         return item;
     }

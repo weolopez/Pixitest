@@ -19,14 +19,12 @@ export class ListPanel extends WindowPIXI {
     currentPanel?: number = 0;
 
     static window = {
-        width: 500,
-        height: 420,
+
         color: 0x051C38,
-        opacity: 1,
-        corner: 0,
         y: 50,
         x: -5,
-        visible: true,
+        height: 445,
+        visible: false,
         header: <RowContainer>{
             left: [],
             right: <Array<RowItem>>[
@@ -48,13 +46,15 @@ export class ListPanel extends WindowPIXI {
     }
 
     addObjectProperties(obj: Object, fn: getRowItem) {
+        this.win.visible = true;
         let count = 0;
         let component = this;
         let panels = [];
         let panel = Container.init({});
+        let rowCount = Math.ceil(this.height / 55)-2;
         for (let key of Object.keys(obj)) {
             count += 1;
-            if (count % 8 == 0) {
+            if (count % rowCount == 0) {
                 count = 1;
                 panels.push(panel);
                 panel = Container.init({});

@@ -72,7 +72,7 @@ export class GameComponent {
       this.renderer.render(this.stage);
     });
     events.subscribe('SPRITE_KEYS_UPDATED', sprite => {
-      Object.keys(sprite).forEach(key => sprite[key] = sprite.keys[key]);
+      Object.keys(sprite.keys).forEach(key => sprite[key] = sprite.keys[key]);
     });
     events.subscribe('SPRITE_DELETE', sprite => {
       this.stage.removeChild(sprite);
