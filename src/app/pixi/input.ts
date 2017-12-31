@@ -27,8 +27,8 @@ export class PixiTextInput extends PIXI.Container {
     _text: any;
     _placeholder: any;
     _nativeTextInput: any;
-    localWidth = 100;
-    _backgroundColor = 0x748BA7;
+    localWidth = 300;
+    _backgroundColor = 0x051C38;//0x748BA7;
     _caretColor = 0x000000;
     _borderColor = 0x000000;
     _borderWidth = 0;

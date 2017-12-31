@@ -34,6 +34,14 @@
  */
 export class Events {
   private _channels: any = [];
+  private static instance: Events;
+
+  static getInstance(): Events {
+    if (!Events.instance) {
+      Events.instance = new Events();
+    }
+    return Events.instance;
+  }
 
   /**
    * Subscribe to an event topic. Events that get posted to that topic will trigger the provided handler.
