@@ -9,8 +9,7 @@ import {
   EventEmitter,
   OnChanges
 } from '@angular/core';
-import { GameComponent, SpriteObject } from '../../game/game.component';
-import { SpriteInteractions } from '../../functions/sprite/interactions';
+import { SpriteObject } from '../../game/game.component';
 import { Events } from '../../services/event/event.service';
 
 @Component({
@@ -30,8 +29,6 @@ export class SpritesComponent implements OnInit, OnChanges {
   public key = '';
   public keyType = 'text';
   public newProperty = '';
-  public game = GameComponent;
-  public property: string;
   public propertyValue: any;
   public name = '';
   public filename: string;
@@ -48,13 +45,28 @@ export class SpritesComponent implements OnInit, OnChanges {
       this.sprites = this.sprites.splice(
           sprite.findIndex(s => s === sprite), 1);
     });
-    events.subscribe('SPRITE_SELECTED', sprite => {
-      this.sprite = sprite;
-      this.spriteSelectionChanged();
-    }
-    );
+
+    events.subscribe('SPRITE_SELECTED', sprite => this.spriteSelectionChanged(sprite) );
+    events.subscribe('ArrowRight', () => this.updateSpriteAngle(1) );
+    events.subscribe('ArrowLeft', () => this.updateSpriteAngle(-1) );
+    events.subscribe('ArrowUp', () => this.updateSpriteAcceleration(1));
+    events.subscribe('ArrowUp', () => this.updateSpriteAcceleration(-1));
   }
   ngOnInit(): void { }
+
+  updateSpriteAcceleration(rate) {
+    this.sprite.vx += rate;
+    this.sprite.vy += rate;
+    this.sprite.N += rate+5;
+  }
+  updateSpriteAngle(turn) {
+    this.sprite.angle += turn;
+    // center the sprite's anchor point
+    this.sprite.anchor.set(0.5);
+    this.sprite.rotation = this.sprite.angle * Math.PI / 180;
+    this.sprite.vy = Math.sin(this.sprite.rotation); 
+    this.sprite.vx = Math.cos(this.sprite.rotation);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     setTimeout(
@@ -67,39 +79,47 @@ export class SpritesComponent implements OnInit, OnChanges {
     );
   }
 
+  spriteUpdated() {
+    this.events.publish('SPRITE_KEYS_UPDATED', this.sprite);
+  }
 
-  change(changing) {
-    this.propertyValue = changing;
+  change(changing?) {
+    if (changing)
+      this.propertyValue = changing;
+
     let key = this.key;
     if (this.key === 'New') {
       key = this.newProperty;
     }
-    this.sprite[key] = this.propertyValue;
 
     if (!isNaN(this.sprite[key])) {
-      this.sprite[key] = Number(this.sprite[key]);
-      this.keys[key] = Number(this.sprite[key]);
+      this.sprite.keys[key] = Number(this.propertyValue);
     } else if (this.sprite[key] === 'true' || this.sprite[key] === 'false') {
-      this.sprite[key] = Boolean(this.sprite[key]);
-      this.sprite.keys[key] = Boolean(this.sprite[key]);
+      this.sprite.keys[key] = Boolean(this.propertyValue);
+    } else if (!isNaN(this.propertyValue)) {
+      this.sprite.keys[key] = Number(this.propertyValue);
+    } else if (this.propertyValue === 'true' || this.propertyValue === 'false') {
+      this.sprite.keys[key] = Boolean(this.propertyValue);
     } else {
-      this.sprite[key] = this.sprite[key];
-      this.sprite.keys[key] = this.sprite[key];
+      this.sprite.keys[key] = this.propertyValue;
     }
 
-    this.events.publish('SPRITE_UPDATED', this.sprite);
+    this.events.publish('SPRITE_KEYS_UPDATED', this.sprite);
     this.spriteSelectionChanged();
   }
+
   add(name, filename) {
     const sprite: SpriteObject = <SpriteObject>{};
     sprite.name = this.name;
     sprite.filename = this.key;
-    GameComponent.add(sprite);
+    // GameComponent.add(sprite);
   }
   deleteSprite() {
     this.events.publish('SPRITE_DELETE', this.sprite);
   }
-  spriteSelectionChanged() {
+  spriteSelectionChanged(sprite?) {
+    if (sprite) this.sprite = sprite;
+
     if (this.sprite.name === 'New') {
       this.keys = this.images;
     } else {
@@ -114,7 +134,7 @@ export class SpritesComponent implements OnInit, OnChanges {
       this.keyType = 'text';
     } else {
       this.keyType = typeof this.sprite[this.key];
-      this.property = this.sprite[this.key];
+      this.propertyValue = this.sprite[this.key];
     }
   }
 }

@@ -17,38 +17,38 @@ export class FirebaseService {
   spriteObservable: Observable<any>;
   prefix = '';
 
-  constructor(private db: AngularFireDatabase, public event: Events) {
+  constructor(private db: AngularFireDatabase, public events: Events) {
 
     this.spriteRef = db.object(this.prefix + 'sprites');
     this.spriteObservable = this.spriteRef.valueChanges();
     this.spriteObservable.subscribe(storedSprites => {
       for (const sprite of Object.keys(storedSprites)) {
-        if (!GameComponent.sprites[sprite]) {
-          GameComponent.add(storedSprites[sprite]);
-        }
+        events.publish('SPRITE_ADD', storedSprites[sprite])
       }
     });
 
+    events.subscribe('SPRITE_KEYS_UPDATED', sprite => this.db.object(this.prefix + 'sprites/' + sprite.keys.name).set(sprite.keys));
 
     setTimeout(() => {
-      for (const key of Object.keys(GameComponent.sprites)) {
-        const sprite = GameComponent.sprites[key];
-        const keys = sprite.keys;
-        for (const k of Object.keys(keys)) {
-          keys[k] = sprite[k];
-        }
-        this.db.object(this.prefix + 'sprites/' + sprite.name).set(keys);
-      }
+      // for (const key of Object.keys(GameComponent.sprites)) {
+      //   const sprite = GameComponent.sprites[key];
+      //   const keys = sprite.keys;
+      //   for (const k of Object.keys(keys)) {
+      //     keys[k] = sprite[k];
+      //   }
+      //   this.db.object(this.prefix + 'sprites/' + sprite.name).set(keys);
+      // }
     }, 5500);
 
-    event.subscribe('SPRITE_ADDED', sprite => this.spriteAdded(sprite));
-    event.subscribe('SPRITE_UPDATED', sprite => this.spriteUpdated(sprite));
-    event.subscribe('SPRITE_DELETED', sprite => this.spriteUpdated(sprite));
+    events.subscribe('SPRITE_ADDED', sprite => this.spriteAdded(sprite));
+    events.subscribe('SPRITE_UPDATED', sprite => this.spriteUpdated(sprite));
+    events.subscribe('SPRITE_DELETED', sprite => this.spriteUpdated(sprite));
 
   }
   spriteDeleted(sprite) {
     this.db.object(this.prefix + 'sprites/' + sprite.name).remove();
   }
+
   spriteUpdated(sprite) {
     if (sprite.name) {
       for (const key of Object.keys(sprite.keys)) {

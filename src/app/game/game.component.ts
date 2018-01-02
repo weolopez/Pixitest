@@ -15,6 +15,7 @@ export interface SpriteObject {
   vx?: number;
   y?: number;
   vy?: number;
+  interactive?: boolean;
 }
 
 @Component({
@@ -23,62 +24,69 @@ export interface SpriteObject {
   styleUrls: ['./game.component.css']
 })
 export class GameComponent {
-  static stage: PIXI.Container;
-  static renderer: any;
-  static loader: PIXI.loaders.Loader;
-  static treasure: PIXI.Sprite;
-  static resources: PIXI.loaders.Resource;
-  static world: TileUtilities;
-  static app: PIXI.Application;
-  static ourMap: any;
+  
+  stage: PIXI.Container;
+  renderer: any;
 
-  public static instance: GameComponent;
+  loader: PIXI.loaders.Loader;
+  treasure: PIXI.Sprite;
+  resources: PIXI.loaders.Resource;
+  world: TileUtilities;
+  app: PIXI.Application;
+  ourMap: any;
 
-  @Input('sprites') public static sprites = {};
-  @Output('update') public update = new EventEmitter<any>();
   @Output('init') public init = new EventEmitter<PIXI.loaders.Resource>();
   @ViewChild('gameElement') gameElement: ElementRef;
 
-  constructor(public ngZone: NgZone, public events: Events) {
-    if (GameComponent.instance) {
-      return;
-    }
-    GameComponent.instance = this;
+  constructor(public events: Events) {
 
-    GameComponent.loader = PIXI.loader;
-    GameComponent.app = new PIXI.Application(512, 512);
-    GameComponent.renderer = GameComponent.app.renderer;
-    GameComponent.stage = GameComponent.app.stage;
-    GameComponent.world = new TileUtilities();
+    this.loader = PIXI.loader;
+    this.app = new PIXI.Application(window.innerWidth - 10, window.innerHeight - 10, {
+    backgroundColor: 0x000000,
+      transparent: false
+  });
+    
+    this.renderer = this.app.renderer;
+    this.stage = this.app.stage;
+    this.world = new TileUtilities();
 
-    GameComponent.loader
+    this.loader
       .add('gameResources', 'assets/images/treasureHunter.json')
       .add('assets/images/testmap.json')
       .add('assets/images/fantasy.png')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
-        GameComponent.resources = resources;
+        this.resources = resources;
         this.init.emit(resources);
-        GameComponent.ourMap = GameComponent.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
-        GameComponent.stage.addChild(GameComponent.ourMap);
-        const sprite: SpriteObject = <SpriteObject>{};
-        sprite.name = 'dungeon';
-        sprite.filename = 'dungeon.png';
-        GameComponent.add(sprite);
+        this.ourMap = this.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
+        this.stage.addChild(this.ourMap);
+        // const sprite: SpriteObject = <SpriteObject>{};
+        // sprite.name = 'dungeon';
+        // sprite.filename = 'dungeon.png';
+        // this.add(sprite);
       });
 
-    GameComponent.loader.onComplete.add(() => {
-      this.gameElement.nativeElement.appendChild(GameComponent.renderer.view);
-      GameComponent.app.ticker.add(GameComponent.play);
-      GameComponent.gameLoop();
+    this.loader.onComplete.add(() => {
+      events.publish('GAME_LOADED', this);
+      document.body.appendChild(this.renderer.view);
+      this.app.ticker.add(this.play, this);
+      this.renderer.render(this.stage);
     });
-
+    events.subscribe('SPRITE_KEYS_UPDATED', sprite => {
+      Object.keys(sprite.keys).forEach(key => sprite[key] = sprite.keys[key]);
+    });
     events.subscribe('SPRITE_DELETE', sprite => {
-      GameComponent.stage.removeChild(sprite);
+      this.stage.removeChild(sprite);
       events.publish('SPRITE_DELETED', sprite);
     });
+    events.subscribe('SPRITE_ADD', sprite => {
+      if (!this.ourMap) return;
+      if (!this.ourMap.getObject('objects').children[sprite]) {
+        this.add(sprite);
+      }
+    })
   }
 
-  static contain = function(sprite) {
+  contain = function(sprite) {
     const container = {
       x: 28,
       y: 10,
@@ -115,9 +123,11 @@ export class GameComponent {
     // Return the `collision` value
     return collision;
   };
-  static play = function() {
-    for (const key of Object.keys(GameComponent.sprites)) {
-      const sprite = GameComponent.sprites[key];
+  play() {
+    const game = this;
+    if (!game.ourMap) return;
+    for (const key of Object.keys(game.ourMap.getObject('objects').children)) {
+      const sprite = game.ourMap.getObject('objects').children[key];
       if (sprite.N <= 0 || sprite.N === undefined) {
         continue;
       } else {
@@ -133,7 +143,7 @@ export class GameComponent {
       } else {
         continue;
       }
-      const blobHitsWall = GameComponent.contain(sprite);
+      const blobHitsWall = game.contain(sprite);
       if (blobHitsWall === 'top' || blobHitsWall === 'bottom') {
         sprite.vy *= -1;
       }
@@ -143,28 +153,21 @@ export class GameComponent {
     }
   };
 
-  static gameLoop = function() {
-    requestAnimationFrame(GameComponent.gameLoop);
-    GameComponent.renderer.render(GameComponent.stage);
-  };
-
-  static randomInt = function(min, max) {
+  randomInt = function(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  static add = function(sprite: SpriteObject) {
+  add = function(sprite: SpriteObject) {
     const TEXTURE = PIXI.utils.TextureCache[sprite.filename];
-    GameComponent.sprites[sprite.name] = new PIXI.Sprite(TEXTURE);
+    const newSprite = new PIXI.Sprite(TEXTURE);
 
     for (const key of Object.keys(sprite)) {
-      GameComponent.sprites[sprite.name][key] = sprite[key];
+      newSprite[key] = sprite[key];
     }
-    GameComponent.sprites[sprite.name]['name'] = sprite.name;
-    GameComponent.sprites[sprite.name]['keys'] = sprite;
-    GameComponent.ourMap.getObject('objects').addChild(GameComponent.sprites[sprite.name])
-    // GameComponent.stage.addChild(GameComponent.sprites[sprite.name]);
-    GameComponent.instance.update.emit(GameComponent.sprites[sprite.name]);
-
-    GameComponent.instance.events.publish('SPRITE_ADDED', GameComponent.sprites[sprite.name]);
+    newSprite['name'] = sprite.name;
+    newSprite['keys'] = sprite;
+    this.ourMap.getObject('objects').addChild(newSprite);
+    
+    this.events.publish('SPRITE_ADDED', newSprite);
   };
 }
