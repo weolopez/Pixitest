@@ -17,6 +17,8 @@ import { BehaviorComponent } from './components/behavior/behavior.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatGridListModule} from '@angular/material/grid-list';
+import { GuiComponent } from './components/gui/gui.component';
+import { WindowComponent } from './components/gui/window/window.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +26,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
     GameComponent,
     SpritesComponent,
     BehaviorComponent,
+    GuiComponent,
+    WindowComponent,
   ],
   imports: [
     BrowserModule,
