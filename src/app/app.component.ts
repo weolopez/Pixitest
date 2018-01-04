@@ -23,6 +23,7 @@ export class AppComponent {
     const settings = new Settings(events);
     const spriteComponent = new SpritesComponent(events);
     const behaviorComponent = new BehaviorComponent(events);
+
   }
   init(resource) {
     for (const element of Object.keys(resource['gameResources'].data.frames)) {
