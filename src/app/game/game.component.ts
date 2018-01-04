@@ -45,7 +45,6 @@ export class GameComponent {
     backgroundColor: 0x000000,
       transparent: false
   });
-    
     this.renderer = this.app.renderer;
     this.stage = this.app.stage;
     this.world = new TileUtilities();
@@ -79,11 +78,11 @@ export class GameComponent {
       events.publish('SPRITE_DELETED', sprite);
     });
     events.subscribe('SPRITE_ADD', sprite => {
-      if (!this.ourMap) return;
+      if (!this.ourMap) {return;}
       if (!this.ourMap.getObject('objects').children[sprite]) {
         this.add(sprite);
       }
-    })
+    });
   }
 
   contain = function(sprite) {
@@ -151,7 +150,7 @@ export class GameComponent {
         sprite.vx *= -1;
       }
     }
-  };
+  }
 
   randomInt = function(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -167,7 +166,6 @@ export class GameComponent {
     newSprite['name'] = sprite.name;
     newSprite['keys'] = sprite;
     this.ourMap.getObject('objects').addChild(newSprite);
-    
     this.events.publish('SPRITE_ADDED', newSprite);
   };
 }

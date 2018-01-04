@@ -56,6 +56,7 @@ export class BehaviorComponent {
     // make it a bit bigger, so it's easier to grab
     sprite.scale.set(3);
     sprite.dragging = true;
+    sprite.selected = true;
   }
 
   onDragEnd(event) {
@@ -75,6 +76,20 @@ export class BehaviorComponent {
       const newPosition = sprite.data.getLocalPosition(sprite.parent);
       sprite.x = newPosition.x;
       sprite.y = newPosition.y;
+    } else if (sprite.selected === true) {
+      sprite.px = event.data.global.x;
+      sprite.py = event.data.global.y;
+
+      const deltaX = sprite.px - sprite.x;
+      const deltaY = sprite.py - sprite.y;
+      sprite.rotation = Math.atan2(deltaY, deltaX);
+      sprite.angle = sprite.rotation * (180 / Math.PI);
+
+      sprite.anchor.set(0.5);
+      sprite.vy = Math.sin(sprite.rotation);
+      sprite.vx = Math.cos(sprite.rotation);
+    //  console.log('angle: ' + sprite.angle + 'x: ' + sprite.x + 'px: ' + sprite.px + 'y: ' + sprite.x + 'py: ' + sprite.py);
+      sprite.N = 1;
     }
   }
   onNew(event) {
@@ -84,7 +99,7 @@ export class BehaviorComponent {
     sprite.filename = event.currentTarget.filename;
     sprite.name = 'NEW_NAME';
     sprite.x = 50;
-    sprite.y = 50;    
+    sprite.y = 50;
     sprite.interactive = true;
     BehaviorComponent.events.publish('SPRITE_ADD', sprite);
   }
