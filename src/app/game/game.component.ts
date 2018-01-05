@@ -12,9 +12,12 @@ export interface SpriteObject extends PIXI.Sprite {
   name: string;
   filename: string;
   x: number;
+  N?: number;
   vx?: number;
+  sx?: number;
   y: number;
   vy?: number;
+  sy?: number;
   interactive: boolean;
 }
 

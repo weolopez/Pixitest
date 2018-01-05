@@ -57,14 +57,14 @@ export class SpritesComponent implements OnInit, OnChanges {
   updateSpriteAcceleration(rate) {
     this.sprite.vx += rate;
     this.sprite.vy += rate;
-    this.sprite.N += rate+5;
+    this.sprite.N += rate + 5;
   }
   updateSpriteAngle(turn) {
     this.sprite.angle += turn;
     // center the sprite's anchor point
     this.sprite.anchor.set(0.5);
     this.sprite.rotation = this.sprite.angle * Math.PI / 180;
-    this.sprite.vy = Math.sin(this.sprite.rotation); 
+    this.sprite.vy = Math.sin(this.sprite.rotation);
     this.sprite.vx = Math.cos(this.sprite.rotation);
   }
 
@@ -84,8 +84,9 @@ export class SpritesComponent implements OnInit, OnChanges {
   }
 
   change(changing?) {
-    if (changing)
+    if (changing) {
       this.propertyValue = changing;
+    }
 
     let key = this.key;
     if (this.key === 'New') {
@@ -118,7 +119,9 @@ export class SpritesComponent implements OnInit, OnChanges {
     this.events.publish('SPRITE_DELETE', this.sprite);
   }
   spriteSelectionChanged(sprite?) {
-    if (sprite) this.sprite = sprite;
+    if (sprite) {
+      this.sprite = sprite;
+    }
 
     if (this.sprite.name === 'New') {
       this.keys = this.images;

@@ -1,4 +1,3 @@
-import { Player } from './player';
 import { GameComponent, SpriteObject } from './../game/game.component';
 import { Events } from '../services/event/event.service';
 import { PixiService } from '../services/pixi/pixi.service';
@@ -9,14 +8,17 @@ export class Player {
     sprite = <SpriteObject> {
         filename: 'blob.png',
         x: 100,
+        N: 1,
         y: 100,
         vx: 0,
         vy: 0,
         name: 'blob',
         interactive: true
     };
+    say: any;
     player: SpriteObject;
     constructor(events: Events) {
+        const player = this;
         events.subscribe('GAME_LOADED', (game: PixiService) => {
             const TEXTURE = PIXI.utils.TextureCache[this.sprite.filename];
             this.player = <SpriteObject>new PIXI.Sprite(TEXTURE);
@@ -37,7 +39,7 @@ export class Player {
 
         });
         events.subscribe('TICK', (game: PixiService) => {
-            const _ = _this;
+            const _ = player;
              if (_.player.N-- < 0 ) { return; }
             _.player.x = _.player.x + _.player.vx;
             _.player.y = _.player.y + _.player.vy;
@@ -47,11 +49,11 @@ export class Player {
             _.player.sy = -game.stage.pivot.y + _.player.y;
         });
         events.subscribe('TICK', (game: PixiService) => {
-            const text = <PixiTextInput> _this.player.children[0];
-            if (text.parent.say) {
-                text.setText(text.parent.say);
+            const text = <PixiTextInput> player.player.children[0];
+            if (text.parent['say']) {
+                text.setText(text.parent['say']);
                 text.alpha = 1;
-                text.parent.say = undefined;
+                text.parent['say'] = undefined;
             }
 
             if (text.alpha > 0) {
