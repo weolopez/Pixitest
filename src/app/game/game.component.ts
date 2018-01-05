@@ -8,14 +8,14 @@ import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { resource } from 'selenium-webdriver/http';
 import { BehaviorComponent } from '../components/behavior/behavior.component';
 
-export interface SpriteObject {
+export interface SpriteObject extends PIXI.Sprite {
   name: string;
   filename: string;
-  x?: number;
+  x: number;
   vx?: number;
-  y?: number;
+  y: number;
   vy?: number;
-  interactive?: boolean;
+  interactive: boolean;
 }
 
 @Component({
@@ -24,7 +24,7 @@ export interface SpriteObject {
   styleUrls: ['./game.component.css']
 })
 export class GameComponent {
-  
+
   stage: PIXI.Container;
   renderer: any;
 
@@ -78,7 +78,7 @@ export class GameComponent {
       events.publish('SPRITE_DELETED', sprite);
     });
     events.subscribe('SPRITE_ADD', sprite => {
-      if (!this.ourMap) {return;}
+      if (!this.ourMap) {return; }
       if (!this.ourMap.getObject('objects').children[sprite]) {
         this.add(sprite);
       }
@@ -124,7 +124,7 @@ export class GameComponent {
   };
   play() {
     const game = this;
-    if (!game.ourMap) return;
+    if (!game.ourMap) { return; }
     for (const key of Object.keys(game.ourMap.getObject('objects').children)) {
       const sprite = game.ourMap.getObject('objects').children[key];
       if (sprite.N <= 0 || sprite.N === undefined) {

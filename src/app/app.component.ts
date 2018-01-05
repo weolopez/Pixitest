@@ -1,3 +1,4 @@
+import { PixiService } from './services/pixi/pixi.service';
 import { BehaviorComponent } from './components/behavior/behavior.component';
 
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
@@ -7,6 +8,7 @@ import { SpritesComponent } from './game/sprites.component';
 import { GameComponent } from './game/game.component';
 import { Settings } from './gui/settings';
 import { Edit } from './gui/edit';
+import { Player } from './player/player';
 
 @Component({
   selector: 'app-root',
@@ -14,20 +16,13 @@ import { Edit } from './gui/edit';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  @ViewChild('textExample') textExample: ElementRef;
-  title = 'box';
-  public images: Array<any> = [];
-  constructor(private firebaseService: FirebaseService, private events: Events  ) {
-    const gameComponent = new GameComponent(events);
-    const edit = new Edit(events);
-    const settings = new Settings(events);
-    const spriteComponent = new SpritesComponent(events);
+  constructor(private firebaseService: FirebaseService, private events: Events, pixiService: PixiService  ) {
+    // const gameComponent = new GameComponent(events);
+    // const edit = new Edit(events);
+    // const settings = new Settings(events);
+    // const spriteComponent = new SpritesComponent(events);
     const behaviorComponent = new BehaviorComponent(events);
+    const player = new Player(events);
 
-  }
-  init(resource) {
-    for (const element of Object.keys(resource['gameResources'].data.frames)) {
-      this.images.push(element);
-    }
   }
 }

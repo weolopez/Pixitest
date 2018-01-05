@@ -80,16 +80,25 @@ export class BehaviorComponent {
       sprite.px = event.data.global.x;
       sprite.py = event.data.global.y;
 
-      const deltaX = sprite.px - sprite.x;
-      const deltaY = sprite.py - sprite.y;
+      const deltaX = sprite.px - sprite.sx;
+      const deltaY = sprite.py - sprite.sy;
       sprite.rotation = Math.atan2(deltaY, deltaX);
       sprite.angle = sprite.rotation * (180 / Math.PI);
 
       sprite.anchor.set(0.5);
       sprite.vy = Math.sin(sprite.rotation);
       sprite.vx = Math.cos(sprite.rotation);
-    //  console.log('angle: ' + sprite.angle + 'x: ' + sprite.x + 'px: ' + sprite.px + 'y: ' + sprite.x + 'py: ' + sprite.py);
+
+      if (sprite.rotation > Math.PI / 2 ) {
+        sprite.rotation =  (sprite.rotation - (Math.PI / 2)) - (Math.PI / 2);
+      }
+      if (sprite.rotation < -Math.PI / 2 ) {
+        sprite.rotation =  (Math.PI / 2) + (sprite.rotation + (Math.PI / 2)); //  - (Math.PI / 2)) ;
+      }
+
+      //  console.log('angle: ' + sprite.angle + 'x: ' + sprite.x + 'px: ' + sprite.px + 'y: ' + sprite.x + 'py: ' + sprite.py);
       sprite.N = 1;
+      sprite.say = sprite.rotation;
     }
   }
   onNew(event) {

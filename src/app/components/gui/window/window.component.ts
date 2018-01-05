@@ -1,3 +1,4 @@
+import { PixiService } from './../../../services/pixi/pixi.service';
 import { Component, OnInit, OnChanges, SimpleChanges, Input } from '@angular/core';
 import { Container } from 'pixi.js';
 import { DefaultTheme } from '../../../pixi/default-theme';
@@ -9,25 +10,25 @@ import { GameComponent } from '../../../game/game.component';
   templateUrl: './window.component.html',
   styleUrls: ['./window.component.css']
 })
-  
+
 export class WindowComponent implements OnInit, OnChanges {
   public x: number;
-  public y: number; 
+  public y: number;
   public color: number;
   public corner: number;
   public margin: number;
   public opacity: number;
-  public _width: number;
-  public _height: number;
+  public width: number;
+  public height: number;
   public components: any;
   window: PIXI.Graphics;
 
-  constructor(events: Events) {
-    this.window = new PIXI.Graphics();
-      <Container>Object.assign(this.window, DefaultTheme.Window);
+  constructor(events: Events, pixiService: PixiService) {
 
+    events.subscribe('WINDOW_CLOSE', button => this.window.visible = false);
     events.subscribe('GAME_LOADED', (game: GameComponent) => {
-      events.subscribe('WINDOW_CLOSE', button => this.window.visible = false);
+      this.window = new PIXI.Graphics();
+      this.window =  <PIXI.Graphics>Object.assign(this.window, DefaultTheme.Window);
       game.stage.addChild(this.window);
       this.draw();
     //  this.window.visible = false;
@@ -42,10 +43,9 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   draw() {
-    
     this.window.lineStyle(2, this.color, 1);
     this.window.beginFill(this.color, this.opacity);
-    this.window.drawRoundedRect(0, 0, this._width, this._height, this.corner);
+    this.window.drawRoundedRect(0, 0, this.width, this.height, this.corner);
     this.window.position.set(this.x + this.margin, this.y + this.margin);
     this.window.endFill();
   }

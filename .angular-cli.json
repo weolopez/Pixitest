@@ -22,8 +22,7 @@
         "styles.css"
       ],
       "scripts": [
-        "../node_modules/pixi.js/dist/pixi.js",
-        "../node_modules/EZGUI.js/dist/EZGUI.js"
+        "../node_modules/pixi.js/dist/pixi.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {

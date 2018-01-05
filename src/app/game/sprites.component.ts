@@ -2,7 +2,7 @@ import { SpriteObject } from './game.component';
 import { Events } from '../services/event/event.service';
 
 export class SpritesComponent {
-  private sprite = { vx: 0, vy: 0, N: 0, angle: 0, rotation:0, anchor: {set: (s)=>s} };
+  private sprite = { vx: 0, vy: 0, N: 0, angle: 0, rotation: 0, anchor: {set: (s) => s} };
   constructor(private events: Events) {
     events.subscribe('SPRITE_SELECTED', sprite => this.sprite = sprite );
     events.subscribe('ArrowRight', () => this.updateSpriteAngle(1) );

@@ -1,3 +1,4 @@
+import { PixiService } from './services/pixi/pixi.service';
 import { Events } from './services/event/event.service';
 import { FirebaseService } from './services/firebase/firebase.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -38,7 +39,7 @@ import { WindowComponent } from './components/gui/window/window.component';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule
   ],
-  providers: [Events, FirebaseService],
+  providers: [Events, FirebaseService, PixiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
