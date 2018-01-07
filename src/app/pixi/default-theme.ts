@@ -8,7 +8,9 @@ export class DefaultTheme {
         margin: 5,
         corner: 15,
         color: 0x051C38,
-        opacity: 0.8
+        opacity: 0.8,
+        x: -200,
+        y: -200
     }
     public static Window = <IWindow>{
         header: <IRowContainer>{

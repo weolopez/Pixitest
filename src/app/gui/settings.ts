@@ -1,10 +1,10 @@
 import { Events } from '../services/event/event.service';
 import * as PIXI from 'pixi.js';
-import { GameComponent } from '../game/game.component';
 import { WindowPIXI, IWindow } from '../pixi/window';
 import { RowContainer, RowItem } from '../pixi/row-container';
 import { IButton } from '../pixi/button';
 import { Container } from '../pixi/container';
+import { Player } from '../player/player';
 
 export class Settings {
     public windowPIXI = <IWindow> {
@@ -20,10 +20,10 @@ export class Settings {
     };
     public win: WindowPIXI;
     constructor(private events: Events) {
-        events.subscribe('GAME_LOADED', (game: GameComponent) => {
+        events.subscribe('PLAYER_ADDED', (game: Container) => {
             this.win = WindowPIXI.init(this.windowPIXI);
             Container.events.subscribe('WINDOW_CLOSE', button => this.win.visible = false);
-            game.stage.addChild(this.win);
+            game.addChild(this.win);
             this.win.visible = false;
         });
 

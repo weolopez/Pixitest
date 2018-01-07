@@ -21,9 +21,9 @@ export class PixiService {
 
     this.loader = PIXI.loader;
     this.app = new PIXI.Application(window.innerWidth - 10, window.innerHeight - 10, {
-    backgroundColor: 0x000000,
+      backgroundColor: 0x000000,
       transparent: false
-  });
+    });
     this.renderer = this.app.renderer;
     this.stage = this.app.stage;
     this.world = new TileUtilities();
@@ -33,8 +33,8 @@ export class PixiService {
       .add('assets/images/fantasy.png')
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         this.resources = resources;
-       this.ourMap = this.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
-       this.stage.addChild(this.ourMap);
+        this.ourMap = this.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
+        this.stage.addChild(this.ourMap);
       });
 
     this.loader.onComplete.add(() => {

@@ -1,9 +1,20 @@
-import { GameComponent, SpriteObject } from './../game/game.component';
 import { Events } from '../services/event/event.service';
 import { PixiService } from '../services/pixi/pixi.service';
 import { Container } from '../pixi/container';
 import { PixiTextInput } from '../pixi/input';
-
+export interface SpriteObject extends PIXI.Sprite {
+    name: string;
+    filename: string;
+    x: number;
+    N?: number;
+    vx?: number;
+    sx?: number;
+    y: number;
+    vy?: number;
+    sy?: number;
+    interactive: boolean;
+    say?: string;
+}
 export class Player {
     sprite = <SpriteObject> {
         filename: 'blob.png',
@@ -15,27 +26,32 @@ export class Player {
         name: 'blob',
         interactive: true
     };
-    say: any;
     player: SpriteObject;
+    text: PIXI.Text;
     constructor(events: Events) {
         const player = this;
         events.subscribe('GAME_LOADED', (game: PixiService) => {
             const TEXTURE = PIXI.utils.TextureCache[this.sprite.filename];
-            this.player = <SpriteObject>new PIXI.Sprite(TEXTURE);
+            this.player = <SpriteObject> new PIXI.Sprite();
+            const playerSprite = <SpriteObject>new PIXI.Sprite(TEXTURE);
 
             for (const key of Object.keys(this.sprite)) {
                 this.player[key] = this.sprite[key];
             }
             this.player['name'] = this.sprite.name;
             this.player['keys'] = this.sprite;
+            
             game.ourMap.getObject('objects').addChild(this.player);
             // game.stage.addChild(this.player);
             events.publish('SPRITE_ADDED', this.player);
-            const text = Container.getText('test');
-            text.x = text.x - 50;
-            text.y = text.y - 45;
-            text.style.fontSize = 16;
-            this.player.addChild(text);
+
+            events.publish('PLAYER_ADDED', this.player);
+            this.player.addChild(playerSprite);
+            this.text = <PIXI.Text>Container.getText('init');
+            this.text.x = this.text.x - 50;
+            this.text.y = this.text.y - 30;
+            this.text.style.fontSize = 16;
+            playerSprite.addChild(this.text);
 
         });
         events.subscribe('TICK', (game: PixiService) => {
@@ -49,15 +65,14 @@ export class Player {
             _.player.sy = -game.stage.pivot.y + _.player.y;
         });
         events.subscribe('TICK', (game: PixiService) => {
-            const text = <PixiTextInput> player.player.children[0];
-            if (text.parent['say']) {
-                text.setText(text.parent['say']);
-                text.alpha = 1;
-                text.parent['say'] = undefined;
+            if (player.player.say) {
+                player.text.text = player.player.say;
+                player.text.alpha = 1;
+                player.player.say = undefined;
             }
 
-            if (text.alpha > 0) {
-                text.alpha -= .01;
+            if (player.text.alpha > 0) {
+                player.text.alpha -= .01;
             }
         });
     }

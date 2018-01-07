@@ -19,6 +19,7 @@ export interface SpriteObject extends PIXI.Sprite {
   vy?: number;
   sy?: number;
   interactive: boolean;
+  say?: string;
 }
 
 @Component({

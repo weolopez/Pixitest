@@ -9,6 +9,30 @@
         "sourceSize": {"w":32,"h":24},
         "pivot": {"x":0.5,"y":0.5}
     },
+    "grass.png": {
+        "frame": {
+            "x": 128,
+            "y": 2,
+            "w": 32,
+            "h": 32
+        },
+        "rotated": false,
+        "trimmed": false,
+        "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+        },
+        "sourceSize": {
+            "w": 32,
+            "h": 32
+        },
+        "pivot": {
+            "x": 0.5,
+            "y": 0.5
+        }
+    },
     "door.png":
     {
         "frame": {"x":89,"y":2,"w":32,"h":32},

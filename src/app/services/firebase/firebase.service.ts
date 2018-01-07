@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Events } from './../event/event.service';
 
-import { GameComponent } from '../../game/game.component';
 import { Observable } from 'rxjs/Observable';
 import {
   AngularFireList,

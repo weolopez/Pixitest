@@ -1,6 +1,5 @@
 import { Events } from "../services/event/event.service";
 import * as PIXI from 'pixi.js';
-import { GameComponent } from "../game/game.component";
 import { WindowPIXI, IWindow } from "../pixi/window";
 import { RowContainer, RowItem, IRowContainer } from "../pixi/row-container";
 import { IButton, Button } from "../pixi/button";
@@ -70,14 +69,16 @@ export class Edit {
     private selectedSpriteName: string;
     private selectedSprite: ISprite;
     constructor(private events: Events) {
-        events.subscribe('GAME_LOADED', (game: GameComponent) => {
+        events.subscribe('PLAYER_ADDED', (game: Container) => {
             this.win = Container.init(this.windowPIXI);
+            this.win.x = -window.innerWidth / 2;
+            this.win.y = -window.innerHeight / 2;
             events.subscribe('SPRITE_ADDED', sprite => {
                 this.sprites.push(sprite)
             });
             Container.events.subscribe('WINDOW_CLOSE', button => this.win.visible = false);
             Container.events.subscribe('MENU_OPEN', button => this.openMenu(this.win.components.sidePanel));
-            game.stage.addChild(this.win);
+            game.addChild(this.win);
         });
         Container.events.subscribe('SELECTD_SPRITE', e => {
             this.selectedSpriteName = e.children[0].text;
