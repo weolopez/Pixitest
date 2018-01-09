@@ -27,13 +27,15 @@ export class Player {
         interactive: true
     };
     player: SpriteObject;
+    playerSprite: SpriteObject;
     text: PIXI.Text;
+    hit: boolean;
     constructor(events: Events) {
         const player = this;
         events.subscribe('GAME_LOADED', (game: PixiService) => {
             const TEXTURE = PIXI.utils.TextureCache[this.sprite.filename];
             this.player = <SpriteObject> new PIXI.Sprite();
-            const playerSprite = <SpriteObject>new PIXI.Sprite(TEXTURE);
+            this.playerSprite = <SpriteObject>new PIXI.Sprite(TEXTURE);
 
             for (const key of Object.keys(this.sprite)) {
                 this.player[key] = this.sprite[key];
@@ -41,28 +43,47 @@ export class Player {
             this.player['name'] = this.sprite.name;
             this.player['keys'] = this.sprite;
             
-            game.ourMap.getObject('objects').addChild(this.player);
+            game.ourMap.addChild(this.player);
             // game.stage.addChild(this.player);
             events.publish('SPRITE_ADDED', this.player);
 
             events.publish('PLAYER_ADDED', this.player);
-            this.player.addChild(playerSprite);
+            this.player.addChild(this.playerSprite);
             this.text = <PIXI.Text>Container.getText('init');
             this.text.x = this.text.x - 50;
             this.text.y = this.text.y - 30;
             this.text.style.fontSize = 16;
-            playerSprite.addChild(this.text);
+            this.playerSprite.addChild(this.text);
 
         });
         events.subscribe('TICK', (game: PixiService) => {
-            const _ = player;
-             if (_.player.N-- < 0 ) { return; }
-            _.player.x = _.player.x + _.player.vx;
-            _.player.y = _.player.y + _.player.vy;
-            game.stage.pivot.x = (_.player.position.x - window.innerWidth / 2);
-            _.player.sx = -game.stage.pivot.x + _.player.x;
-            game.stage.pivot.y = (_.player.position.y - window.innerHeight / 2);
-            _.player.sy = -game.stage.pivot.y + _.player.y;
+            const p = player.player;
+            if (p.N-- < 0) { return; }
+            let x = p.x;
+            let y = p.y;
+            p.x = Math.floor(p.x + p.vx);
+            p.y = Math.floor(p.y + p.vy);
+            let temp = new PIXI.Sprite();
+            temp.x = p.x;
+            temp.y = p.y
+            temp.width = 32;
+            temp.height = 32;
+            let hit = game.canMove(temp);
+            p.say = 'hit: ' + hit;
+            if (!hit) {
+               events.publish('MOVED_PLAYER', game);
+            }
+            else {
+                 p.x = x;
+                 p.y = y;
+            }
+        });
+        events.subscribe('MOVED_PLAYER', (game: PixiService) => {
+            const p = player.player;
+            game.stage.pivot.x = (p.x - window.innerWidth / 2);
+            p.sx = -game.stage.pivot.x + p.x;
+            game.stage.pivot.y = (p.y - window.innerHeight / 2);
+            p.sy = -game.stage.pivot.y + p.y;
         });
         events.subscribe('TICK', (game: PixiService) => {
             if (player.player.say) {
@@ -73,6 +94,19 @@ export class Player {
 
             if (player.text.alpha > 0) {
                 player.text.alpha -= .01;
+            }
+        });
+        events.subscribe('TICK', (game: PixiService) => {
+
+          //  this.hit = game.world.hitTestTile(this.player, game.ourMap.getObject("walls").data, 0, game.ourMap, "every").hit;
+
+            if (!this.hit) {
+                const TEXTURE = PIXI.utils.TextureCache["grass.png"];
+                let wall = <SpriteObject>new PIXI.Sprite(TEXTURE);
+                wall.y = this.player.y;
+                wall.x = this.player.x;
+         //       this.player.say = wall.x + ' : ' + wall.y;
+         //       game.ourMap.getObject('ground').addChild(wall);
             }
         });
     }
