@@ -38,10 +38,10 @@ export class PixiService {
       .load((localLoader, resources: PIXI.loaders.Resource) => {
         this.resources = resources;
         let background = new PIXI.Sprite(PIXI.utils.TextureCache["space"]);  // this.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');
-        background.scale.set(1.05, 1.05);
+        background.scale.set(4, 4);
         background.position.set(0, 0);
-        background.x = -512;
-        background.y = -512;
+        background.x = -2048;
+        background.y = -2048;
         this.stage.addChild(background);
 
         this.ourMap = this.getWorld(); // this.world.makeTiledWorld('assets/images/testmap.json', 'assets/images/fantasy.png');

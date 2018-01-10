@@ -71,7 +71,8 @@ export class Player {
             let hit = game.canMove(temp);
             p.say = 'hit: ' + hit;
             if (!hit) {
-               events.publish('MOVED_PLAYER', game);
+                events.publish('MOVED_PLAYER', game);
+                // player.addGrass(game);
             }
             else {
                  p.x = x;
@@ -109,5 +110,15 @@ export class Player {
          //       game.ourMap.getObject('ground').addChild(wall);
             }
         });
+    }
+    addGrass(game) {
+        const TEXTURE = PIXI.utils.TextureCache["grass.png"];
+        let wall = <SpriteObject>new PIXI.Sprite(TEXTURE);
+        wall.y = this.player.y;
+        wall.x = this.player.x;
+        wall.width = 32;
+        wall.height = 32;
+        this.player.parent.addChild(wall);
+        game.stuff.push(wall);
     }
 }
