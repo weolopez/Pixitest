@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy": "ng build --prod --output-path docs --base-href Pixitest; git add .;git commit -am 'updated binaries';git push weolopez"
+    "gitpage": "ng build --prod --output-path docs --base-href Pixitest",
+    "deploy": "git add .;git commit -am 'updated binaries';git push weolopez"
   },
   "private": true,
   "dependencies": {
