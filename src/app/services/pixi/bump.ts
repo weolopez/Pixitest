@@ -1425,8 +1425,10 @@ export class Bump {
             //Loop through the array in reverse
             for (let i = b.length - 1; i >= 0; i--) {
                 let sprite = b[i];
+                if (a === sprite) continue;
                 collision = findCollisionType(a, sprite);
                 if (collision && extra) extra(collision, sprite);
+                if (collision) return;
             }
         }
 

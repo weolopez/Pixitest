@@ -49,6 +49,7 @@ export class FirebaseService {
   }
 
   spriteUpdated(sprite) {
+    if (!sprite.keys) return;
     if (sprite.name) {
       for (const key of Object.keys(sprite.keys)) {
         sprite.keys[key] = sprite[key];

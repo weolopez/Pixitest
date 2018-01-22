@@ -28,7 +28,7 @@ export class Button extends Container {
         if (gui.event) {
             button.interactive = true;
             button.on('pointerup', () => {
-                Container.events.publish(gui.event, button);
+                new Events().publish(gui.event, button);
             });
         }
 

@@ -20,10 +20,10 @@ export class Settings {
     };
     public win: WindowPIXI;
     constructor(private events: Events) {
-        events.subscribe('PLAYER_ADDED', (game: Container) => {
+        events.subscribe('WINDOW_ADDED', (game_window: Container) => {
             this.win = WindowPIXI.init(this.windowPIXI);
             Container.events.subscribe('WINDOW_CLOSE', button => this.win.visible = false);
-            game.addChild(this.win);
+            game_window.addChild(this.win);
             this.win.visible = false;
         });
 

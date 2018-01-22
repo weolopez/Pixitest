@@ -35,8 +35,8 @@ export class Edit {
                 type: WindowPIXI,
                 width: 250,
                 height: 445,
-                color: 0x748BA7,
-                opacity: 1,
+                //   color: 0x748BA7,
+                opacity: 0,
                 y: 45,
                 x: -5,
                 corner: 0,
@@ -69,30 +69,41 @@ export class Edit {
     private selectedSpriteName: string;
     private selectedSprite: ISprite;
     constructor(private events: Events) {
-        events.subscribe('PLAYER_ADDED', (game: Container) => {
-            this.win = Container.init(this.windowPIXI);
-            this.win.x = -window.innerWidth / 2;
-            this.win.y = -window.innerHeight / 2;
-            events.subscribe('SPRITE_ADDED', sprite => {
-                this.sprites.push(sprite)
+        let me = this;
+
+        events.subscribe('SPRITE_ADDED', sprite => {
+            me.sprites.push(sprite)
+        });
+        events.subscribe('WINDOW_ADDED', (game_window: Container) => {
+            me.win = Container.init(me.windowPIXI);
+            me.win.x = -window.innerWidth / 2;
+            me.win.y = -window.innerHeight / 2;
+            me.events.subscribe('WINDOW_CLOSE', button => {
+                me.win.visible = false
             });
-            Container.events.subscribe('WINDOW_CLOSE', button => this.win.visible = false);
-            Container.events.subscribe('MENU_OPEN', button => this.openMenu(this.win.components.sidePanel));
-            game.addChild(this.win);
+            me.events.subscribe('MENU_OPEN', button => {
+                me.openMenu(me.win.components.sidePanel)
+            });
+            game_window.addChild(me.win);
         });
-        Container.events.subscribe('SELECTD_SPRITE', e => {
-            this.selectedSpriteName = e.children[0].text;
-            this.editSpriteByName(this.selectedSpriteName);
-            this.win.components.sidePanel.visible = false;
-        }
-        );
+        events.subscribe('SELECTD_SPRITE', e => {
+            me.selectedSpriteName = e.children[0].text;
+            me.editSpriteByName(me.selectedSpriteName);
+            me.win.components.sidePanel.visible = false;
+        });
+        events.subscribe('SELECTED_SPRITE', e => {
+            me.win.visible = true;
+            me.selectedSpriteName = e.name;
+            me.editSpriteByName(me.selectedSpriteName);
+            me.win.components.sidePanel.visible = false;
+        });
         events.subscribe('o', game => {
-            this.win.visible = !this.win.visible;
+            me.win.visible = !me.win.visible;
         });
-        Container.events.subscribe('SPRITE_KEY', obj => {
-            this.selectedSprite.keys[obj.key] = obj.value;
-            if (this.selectedSprite.keys)
-                this.events.publish('SPRITE_KEYS_UPDATED', this.selectedSprite);
+        events.subscribe('SPRITE_KEY', obj => {
+            me.selectedSprite.keys[obj.key] = obj.value;
+            if (me.selectedSprite.keys)
+                me.events.publish('SPRITE_KEYS_UPDATED', me.selectedSprite);
         });
     }
 
@@ -102,6 +113,7 @@ export class Edit {
         editPanel.addObjectProperties(this.selectedSprite.keys, Edit.createKeyContainer);
     }
     openMenu(sidePanel) {
+        let me = this;
         sidePanel.visible = !sidePanel.visible;
         if (!sidePanel.visible) return;
         sidePanel.panel = Container.init({});

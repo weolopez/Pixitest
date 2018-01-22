@@ -18,6 +18,7 @@ export class AppComponent {
     private events: Events,
     interactiveService: InteractiveService,
     pixiService: PixiService,
+    firebase: FirebaseService
   ) {
     // const gameComponent = new GameComponent(events);
     const edit = new Edit(events);

@@ -28,7 +28,7 @@ export class DefaultTheme {
         color: 0x748BA7,
         corner: 0,
         margin: 5,
-        opacity: 1,
+        opacity: 0,
         left: <Array<RowItem>>[
             { text: 'label' },
 

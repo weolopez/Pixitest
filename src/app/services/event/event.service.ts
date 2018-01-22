@@ -43,6 +43,9 @@ export class Events {
     return Events.instance;
   }
 
+  constructor() {
+    if (Events.instance) return Events.instance;
+  }
   /**
    * Subscribe to an event topic. Events that get posted to that topic will trigger the provided handler.
    *

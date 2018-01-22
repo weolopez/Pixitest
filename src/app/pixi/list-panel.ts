@@ -46,12 +46,13 @@ export class ListPanel extends WindowPIXI {
     }
 
     addObjectProperties(obj: Object, fn: getRowItem) {
-        this.win.visible = true;
+        let me = this;
+        me.win.visible = true;
         let count = 0;
-        let component = this;
+        let component = me;
         let panels = [];
         let panel = Container.init({});
-        let rowCount = Math.ceil(this.height / 55)-2;
+        let rowCount = Math.ceil(me.height / 55)-2;
         for (let key of Object.keys(obj)) {
             count += 1;
             if (count % rowCount == 0) {
@@ -64,10 +65,12 @@ export class ListPanel extends WindowPIXI {
                 return c;
             });
         }
+
         panels.push(panel);
+
         Container.events.subscribe('PAGE_RIGHT', (str) => {
             if (component.panels.length - 1 > component.currentPanel) {
-                component.win.removeChildAt(1);
+                component.win.removeChild(panels[me.currentPanel]);
                 component.currentPanel++;
                 component.win.addChild(component.panels[component.currentPanel]);
             }
@@ -75,12 +78,12 @@ export class ListPanel extends WindowPIXI {
 
         Container.events.subscribe('PAGE_LEFT', (str) => {
             if (0 < component.currentPanel) {
-                component.win.removeChildAt(1);
+                component.win.removeChild(panels[me.currentPanel]);
                 component.currentPanel--;
                 component.win.addChild(component.panels[component.currentPanel]);
             }
         });
         component.panels = panels;
-        this.win.addChild(panels[this.currentPanel]);
+        me.win.addChild(panels[me.currentPanel]);
     }
 }

@@ -8,117 +8,127 @@ export interface SpriteObject extends PIXI.Sprite {
     x: number;
     N?: number;
     vx?: number;
-    sx?: number;
     y: number;
     vy?: number;
-    sy?: number;
+    mass?: number;
     interactive: boolean;
     say?: string;
 }
 export class Player {
-    sprite = <SpriteObject> {
-        filename: 'blob.png',
-        x: 100,
+    sprite = <SpriteObject>{
+        filename: '',
+        x: 150,
         N: 1,
-        y: 100,
+        y: 150,
         vx: 0,
         vy: 0,
-        name: 'blob',
+        mass: .1,
+        name: '',
         interactive: true
     };
-    player: SpriteObject;
+    spriteKeys = <SpriteObject>{
+        filename: 'jet',
+        name: 'blobSprite',
+        width: 32,
+        height: 32,
+        mass: .1
+    };
+
+    window: SpriteObject;
     playerSprite: SpriteObject;
     text: PIXI.Text;
     hit: boolean;
+    map: any;
+    stuff: any;
+    sx: number;
+    sy: number;
     constructor(events: Events) {
-        const player = this;
+        const me = this;
         events.subscribe('GAME_LOADED', (game: PixiService) => {
-            const TEXTURE = PIXI.utils.TextureCache[this.sprite.filename];
-            this.player = <SpriteObject> new PIXI.Sprite();
-            this.playerSprite = <SpriteObject>new PIXI.Sprite(TEXTURE);
+            me.map = game.ourMap;
+            me.stuff = game.stuff;
+            me.window = me.addSprite(game.ourMap, me.sprite);
+            me.playerSprite = me.addSprite(me.window, me.spriteKeys)
+            me.playerSprite.anchor.set(.5);
 
-            for (const key of Object.keys(this.sprite)) {
-                this.player[key] = this.sprite[key];
-            }
-            this.player['name'] = this.sprite.name;
-            this.player['keys'] = this.sprite;
-            
-            game.ourMap.addChild(this.player);
-            // game.stage.addChild(this.player);
-            events.publish('SPRITE_ADDED', this.player);
-
-            events.publish('PLAYER_ADDED', this.player);
-            this.player.addChild(this.playerSprite);
-            this.text = <PIXI.Text>Container.getText('init');
-            this.text.x = this.text.x - 50;
-            this.text.y = this.text.y - 30;
-            this.text.style.fontSize = 16;
-            this.playerSprite.addChild(this.text);
-
+            events.publish('WINDOW_ADDED', me.window);
+            events.publish('SPRITE_ADDED', me.playerSprite);
         });
+
+        events.subscribe('SPRITE_ADD', (spriteObject: SpriteObject) => {
+            // let me = this;
+            // let sprite = me.addSprite(me.map, spriteObject);
+            events.publish('SPRITE_ADD_COLLIDABLE', spriteObject);
+        });
+
         events.subscribe('TICK', (game: PixiService) => {
-            const p = player.player;
+            const p = <SpriteObject>me.window;
             if (p.N-- < 0) { return; }
-            let x = p.x;
-            let y = p.y;
-            p.x = Math.floor(p.x + p.vx);
-            p.y = Math.floor(p.y + p.vy);
-            let temp = new PIXI.Sprite();
-            temp.x = p.x;
-            temp.y = p.y
-            temp.width = 32;
-            temp.height = 32;
-            let hit = game.canMove(temp);
-            p.say = 'hit: ' + hit;
+            let x = me.playerSprite.x;
+            let y = me.playerSprite.y;
+            me.playerSprite.x = Math.floor(p.x + p.vx);
+            me.playerSprite.y = Math.floor(p.y + p.vy);
+            let hit = game.canMove(me.playerSprite);
             if (!hit) {
+                me.playerSprite.say = 'hit: ' + hit;
                 events.publish('MOVED_PLAYER', game);
-                // player.addGrass(game);
+                p.x = me.playerSprite.x;
+                p.y = me.playerSprite.y;
             }
-            else {
-                 p.x = x;
-                 p.y = y;
-            }
+            me.playerSprite.x = x;
+            me.playerSprite.y = y;
+
         });
         events.subscribe('MOVED_PLAYER', (game: PixiService) => {
-            const p = player.player;
-            game.stage.pivot.x = (p.x - window.innerWidth / 2);
-            p.sx = -game.stage.pivot.x + p.x;
-            game.stage.pivot.y = (p.y - window.innerHeight / 2);
-            p.sy = -game.stage.pivot.y + p.y;
+            const p = me.window;
+            game.stage.pivot.x = (me.window.x - window.innerWidth / 2);
+            me.sx = me.window.x - game.stage.pivot.x;
+        
+            game.stage.pivot.y = (me.window.y - window.innerHeight / 2);
+            me.sy = me.window.y - game.stage.pivot.y;
         });
-        events.subscribe('TICK', (game: PixiService) => {
-            if (player.player.say) {
-                player.text.text = player.player.say;
-                player.text.alpha = 1;
-                player.player.say = undefined;
-            }
 
-            if (player.text.alpha > 0) {
-                player.text.alpha -= .01;
-            }
-        });
-        events.subscribe('TICK', (game: PixiService) => {
-
-          //  this.hit = game.world.hitTestTile(this.player, game.ourMap.getObject("walls").data, 0, game.ourMap, "every").hit;
-
-            if (!this.hit) {
-                const TEXTURE = PIXI.utils.TextureCache["grass.png"];
-                let wall = <SpriteObject>new PIXI.Sprite(TEXTURE);
-                wall.y = this.player.y;
-                wall.x = this.player.x;
-         //       this.player.say = wall.x + ' : ' + wall.y;
-         //       game.ourMap.getObject('ground').addChild(wall);
-            }
-        });
+        events.subscribe('MOUSE_MOVED', point =>
+            this.mouseMoved(point, me));
     }
-    addGrass(game) {
-        const TEXTURE = PIXI.utils.TextureCache["grass.png"];
-        let wall = <SpriteObject>new PIXI.Sprite(TEXTURE);
-        wall.y = this.player.y;
-        wall.x = this.player.x;
-        wall.width = 32;
-        wall.height = 32;
-        this.player.parent.addChild(wall);
-        game.stuff.push(wall);
+    addSprite(parent, spriteObject: SpriteObject) {
+        const me = parent;
+        const TEXTURE = PIXI.utils.TextureCache[spriteObject.filename];
+        const sprite = <SpriteObject>new PIXI.Sprite(TEXTURE);
+
+        for (const key of Object.keys(spriteObject)) {
+            sprite[key] = spriteObject[key];
+        }
+        sprite['keys'] = spriteObject;
+        parent.addChild(sprite);
+
+        return sprite;
+    }
+
+    mouseMoved(point: PIXI.Point, me) {
+        const sprite = me.window;
+
+        const deltaX = point.x - me.sx;
+        const deltaY = point.y - me.sy;
+
+        sprite.N = 2*Math.abs((deltaX + deltaY)) / 100;
+
+        let rotation = Math.atan2(deltaY, deltaX);// - 1.5708;
+        sprite.vy = Math.sin(rotation);
+        sprite.vx = Math.cos(rotation);
+
+        if (sprite.vy > 0) sprite.vy += sprite.N;
+        if (sprite.vy < 0) sprite.vy -= sprite.N;
+        if (sprite.vx > 0) sprite.vx += sprite.N;
+        if (sprite.vx < 0) sprite.vx -= sprite.N;
+
+        // if (rotation > Math.PI / 2) {
+            rotation = (rotation - (Math.PI / 2)) - (Math.PI / 2);
+        // }
+        // if (rotation < -Math.PI / 2) {
+        //     rotation = (Math.PI / 2) + (rotation + (Math.PI / 2)); //  - (Math.PI / 2)) ;
+        // }
+        me.playerSprite.rotation = rotation;
+        sprite.N = 1;
     }
 }
